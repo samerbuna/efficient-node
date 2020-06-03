@@ -1,11 +1,18 @@
 = Node's Streams
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bookmark:
+:important-caption: :boom:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
 [quote, Dominic Tarr]
 Streams are Node's best and most misunderstood idea.
 
 Node streams have a reputation for being hard to work with, and even harder to understand. Well I've got good news for you – that's no longer the case.
 
-Over the years, developers created a lot of packages out there with the sole purpose of making working with streams easier. However, in this article, I'm going to focus on the native Node streams API.
+Over the years, developers created a lot of packages out there with the sole purpose of making working with streams easier. However, in this lesson, I'm going to focus on the native Node streams API.
 
 == What Exactly Are Streams?
 
@@ -17,8 +24,8 @@ image::/images/picturenode4.png[]
 
 [subs="+quotes,+macros"]
 ----
-const grep = ... _// A stream for the grep output_
-const wc = ...   _// A stream for the wc input_
+const grep = ... [gray]##// A stream for the grep output##
+const wc = ...   [gray]##// A stream for the wc input##
 
 grep.pipe(wc)
 ----
@@ -175,13 +182,13 @@ a.pipe(b)
   .pipe(c)
   .pipe(d);
 
-_// Which is equivalent to:_
+[gray]##// Which is equivalent to:##
 a.pipe(b);
 b.pipe(c);
 c.pipe(d);
 
-_// Which, in Linux, is equivalent to:_
-_// $ a | b | c | d_
+[gray]##// Which, in Linux, is equivalent to:##
+[gray]##// $ a | b | c | d##
 ----
 
 The `pipe` method is the easiest way to consume streams. It's generally recommended to either use the pipe method or consume streams with events, but avoid mixing these two. Usually when you're using the pipe method you don't need to use events, but if you need to consume the streams in more custom ways, events would be the way to go.
@@ -194,7 +201,7 @@ However, streams can also be consumed with events directly. Here's the simplifie
 
 [subs="+quotes,+macros"]
 ----
-_// readable.pipe(writable)_
+[gray]##// readable.pipe(writable)##
 
 readable.on("data", chunk => {
   writable.write(chunk);
@@ -348,7 +355,7 @@ const inStream = new Readable();
 inStream.push("ABCDEFGHIJKLM");
 inStream.push("NOPQRSTUVWXYZ");
 
-inStream.push(null); _// No more data_
+inStream.push(null); [gray]##// No more data##
 
 inStream.pipe(process.stdout);
 ----
@@ -365,8 +372,8 @@ We're basically pushing all the data in the stream *before* & piping it to `proc
 ----
 const inStream = new Readable({
   *read*(size) {
-    _// there is a demand on the data..._
-    _// Someone wants to read it._
+    [gray]##// there is a demand on the data...##
+    [gray]##// Someone wants to read it.##
   }
 });
 ----
@@ -579,7 +586,7 @@ The applications of combining streams are endless. For example, if we need to en
 ----
 const crypto = require("crypto");
 
-_// .._
+[gray]##// ..##
 
 fs.createReadStream(file)
   .pipe(zlib.createGzip())
@@ -605,6 +612,4 @@ fs.createReadStream(file)
 
 Assuming the file used is the compressed version, the code above will create a read stream from that, pipe it into the crypto `createDecipher()` stream (using the same secret), pipe the output of that into the zlib `createGunzip()` stream, and then write things out back to a file without the extension part.
 
-'''
-
-This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].
+IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.

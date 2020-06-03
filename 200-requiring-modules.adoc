@@ -1,4 +1,11 @@
 = Requiring Modules
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bookmark:
+:important-caption: :boom:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
 Node uses two core modules for managing module dependencies:
 
@@ -26,7 +33,7 @@ The main object exported by the `require` module is a function (as used in the a
 
 - *Caching:* So that when we require this file again, we don't go over all the steps another time
 
-In this article, I'll attempt to explain with examples these different stages and how they affect the way we write modules in Node.
+In this lesson, I'll attempt to explain with examples these different stages and how they affect the way we write modules in Node.
 
 Let me first create a directory to host all the examples using my terminal:
 
@@ -36,7 +43,7 @@ mkdir ~/learn-node && cd ~/learn-node
 ----
 
 [NOTE]
-All the commands in the rest of this article will be run from within `~/learn-node`.
+All the commands in the rest of this lesson will be run from within `~/learn-node`.
 
 == Resolving a Local Path
 
@@ -282,10 +289,10 @@ In any module, `exports` is a special object. If you've noticed above, every tim
 
 [subs="+quotes,+macros"]
 ----
-_// Add the following line at the top of lib/util.js_
+[gray]##// Add the following line at the top of lib/util.js##
 exports.id = "lib/util";
 
-_// Add the following line at the top of index.js_
+[gray]##// Add the following line at the top of index.js##
 exports.id = "index";
 ----
 
@@ -316,7 +323,7 @@ I've removed some attributes in the above output to keep it brief but note how t
 
 [subs="+quotes,+macros"]
 ----
-_// Add the following line in index.js before the console.log_
+[gray]##// Add the following line in index.js before the console.log##
 module.exports = function() {};
 ----
 
@@ -358,7 +365,7 @@ The `module` module uses the `loaded` attribute to track which modules have been
 
 [subs="+quotes,+macros"]
 ----
-_// In index.js_
+[gray]##// In index.js##
 
 setImmediate(() => {
   console.log("The index.js module object is now loaded!", module);
@@ -401,7 +408,7 @@ This also means that we cannot change the exports object asynchronously. For exa
 ----
 fs.readFile("/etc/passwd", (err, data) => {
   if (err) throw err;
-  *exports.data = data;* _// Will not work._
+  *exports.data = data;* [gray]##// Will not work.##
 });
 ----
 
@@ -502,11 +509,11 @@ We can use the `exports` object to export properties, but we cannot replace the 
 
 [subs="+quotes,+macros"]
 ----
-exports.id = 42; _// This is ok._
+exports.id = 42; [gray]##// This is ok.##
 
-exports = { id: 42 }; _// This will not work._
+exports = { id: 42 }; [gray]##// This will not work.##
 
-module.exports = { id: 42 }; _// This is ok._
+module.exports = { id: 42 }; [gray]##// This is ok.##
 ----
 
 How exactly does this `exports` object, which appears to be global for every module, get defined as a reference on the `module` object?
@@ -602,11 +609,11 @@ What happens is roughly equivalent to:
 [subs="+quotes,+macros"]
 ----
 function (require, module, pass:[__filename, __dirname]) {
-_// let exports = module.exports;_
+[gray]##// let exports = module.exports;##
 
-  _// Your Code..._
+  [gray]##// Your Code...##
 
-_// return module.exports;_
+[gray]##// return module.exports;##
 }
 ----
 
@@ -650,7 +657,7 @@ We want to use this file in two ways:
 +
 [subs="+quotes,+macros"]
 ----
-_~/learn-node $_ node print-in-frame 8 Hello
+[gray]##~/learn-node $## node print-in-frame 8 Hello
 ----
 +
 Passing 8 and Hello as command line arguments to print “Hello” in a frame of 8 stars.
@@ -675,7 +682,7 @@ This is where we can use this simple if statement:
 [subs="+quotes,+macros"]
 ----
 if (require.main === module) {
-  _// The file is being executed directly (not with require)_
+  [gray]##// The file is being executed directly (not with require)##
 }
 ----
 
@@ -710,22 +717,20 @@ We want to display this header every time we **require** the file. If we require
 
 [subs="+quotes,+macros"]
 ----
-require("./ascii-art"); _// will show the header._
-require("./ascii-art"); _// will not show the header._
+require("./ascii-art"); [gray]##will show the header.##
+require("./ascii-art"); [gray]##will not show the header.##
 ----
 
 The second require will not show the header because of modules' caching. Node caches the first call and does not load the file on the second call.
 
-We can see this cache by printing `require.cache` after the first require. The cache registry is simply an object that has a property for every required module. Those properties values are the `module` objects used for each module. We can simply delete a property from that `require.cache` object to invalidate that cache. If we do that, Node will re-load the module to re-cache it.
+We can see this cache by printing `require.cache` after the first require. The cache registry is simply an object that has a property for every required module. Those properties values are the `module` objects used for each module. We can simply delete a property from that `require.cache` object to invalidate that cache. If we do that, Node will re-load the module to re-cache it .
 
-However, this is not the most efficient solution for this case. The simple solution is to wrap the log line in `ascii-art.js` with a function and export that function. This way, when we require the `ascii-art.js` file, we get a function that we can execute to invoke the log line every time:
+However, this is not the most efficient solution for this case. The simple solution is towrap the log line in `ascii-art.js` with a function and export that function. This way, when we require the `ascii-art.js` file, we get a function that we can execute to invoke the log line every time:
 
 [subs="+quotes,+macros"]
 ----
-require("./ascii-art")(); _// will show the header._
-require("./ascii-art")(); _// will also show the header._
+require("./ascii-art")(); [gray]##will show the header.##
+require("./ascii-art")(); [gray]##will also show the header.##
 ----
 
-'''
-
-This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].
+IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.

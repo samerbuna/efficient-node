@@ -1,4 +1,11 @@
 = Node's Child Processes
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bookmark:
+:important-caption: :boom:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
 Single-threaded, non-blocking performance in Node works great for a single process. But eventually, one process in one CPU is not going to be enough to handle the increasing workload of your application.
 
@@ -194,7 +201,7 @@ Assuming we have a `file timer.js` that keeps the event loop busy:
 [subs="+quotes,+macros"]
 ----
 setTimeout(() => {
-  _// keep the event loop busy_
+  [gray]##// keep the event loop busy##
 }, 20000);
 ----
 
@@ -358,8 +365,6 @@ In the parent process, we listen to the `message` event on the forked child proc
 
 The code above is limited by the number of processes we can fork, but when we execute it and request the long computation endpoint over http, the main server is not blocked at all and can take further requests.
 
-Node's *cluster* module, which is the topic of the likn:/learn/node-beyond-basics/scaling-node-apps[next article^], is based on this idea of child process forking and load balancing the requests among the many forks that we can create on any system.
+Node's *cluster* module, which is the topic of the https://jscomplete.com/learn/node-beyond-basics/scaling-node-apps[next lesson^], is based on this idea of child process forking and load balancing the requests among the many forks that we can create on any system.
 
-'''
-
-This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].
+IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.

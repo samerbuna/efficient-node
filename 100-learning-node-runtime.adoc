@@ -1,4 +1,11 @@
 = Introduction
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bookmark:
+:important-caption: :boom:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
 I believe the majority of developers learn Node the wrong way. Most tutorials, books, and courses about Node focus on the Node ecosystem – not the Node runtime itself. They focus on teaching what can be done with all the packages available for you when you work with Node, like Express and Socket.IO, rather than teaching the capabilities of the Node runtime itself.
 
@@ -217,8 +224,6 @@ All the examples I will be using in this book are Linux-based. On Windows, you n
 Throughout the book, I use the term Node instead of Node.js for brevity. The official name of the runtime is Node.js but referring to it as just Node is a very common thing.
 
 [NOTE]
-Some of the content of this book was first drafted with articles I wrote on EdgeCoders.com and medium.freecodecamp.org, and some of it was inspired by my *https://jscomplete.com/c/nodejs-advanced[Advanced Node.js^]* course on Pluralsight.
+Some of the content of this book was first drafted with articles on https://edgecoders.com[EdgeCoders.com^] and https://www.freecodecamp.org/news/[FreeCodeCamp.org^], and some of it was inspired by the *https://jscomplete.com/c/nodejs-advanced[Advanced Node.js^]* course on Pluralsight.
 
-'''
-
-This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].
+IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.

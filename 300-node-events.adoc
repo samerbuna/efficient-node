@@ -1,4 +1,11 @@
 = Node's Event-Driven Architecture
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bookmark:
+:important-caption: :boom:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
 Most of Node's objects - like HTTP requests, responses, and streams - implement the EventEmitter module so they can provide a way to emit and listen to events.
 
@@ -22,11 +29,11 @@ For example, here's a host function `fileSize` that accepts a callback function 
 ----
 function fileSize (fileName, cb) {
   if (typeof fileName !== 'string') {
-    return cb(new TypeError('argument should be string')); _// Sync_
+    return cb(new TypeError('argument should be string')); [gray]##// Syn [gray]##
   }
   fs.stat(fileName, (err, stats) => {
-    if (err) { return cb(err); } _// Async_
-    cb(null, stats.size); _// Async_
+    if (err) { return cb(err); } [gray]##// Asyn [gray]##
+    cb(null, stats.size); [gray]##// Asyn [gray]##
   });
 }
 ----
@@ -235,7 +242,7 @@ We can simulate the case with a `setImmediate` call:
 
 [subs="+quotes,+macros"]
 ----
-_// ..._
+[gray]##// ...##
 
 withLog.execute(() => {
   setImmediate(() => {
@@ -348,7 +355,7 @@ For example, to work with the data event, the listener function that we register
 [subs="+quotes,+macros"]
 ----
 withTime.on('data', (data) => {
-  _// do something with data_
+  [gray]##// do something with data##
 });
 ----
 
@@ -363,7 +370,7 @@ class WithTime extends EventEmitter {
     console.time('execute');
     asyncFunc(...args, (err, data) => {
       if (err) {
-        return this.emit('error', err); _// Not Handled_
+        return this.emit('error', err); [gray]##// Not Handled##
       }
 
       console.timeEnd('execute');
@@ -393,7 +400,7 @@ If we register a listener for the special `error` event, the behavior of the nod
 [subs="+quotes,+macros"]
 ----
 withTime.on('error', (err) => {
-  _// do something with err, for example log it somewhere_
+  [gray]#// do something with err, for example log it somewhere#
   console.log(err)
 });
 ----
@@ -419,12 +426,12 @@ The standard advice about uncaughtException is to avoid using it, but if you mus
 [subs="+quotes,+macros"]
 ----
 process.on('uncaughtException', (err) => {
-  _// something went unhandled._
-  _// Do any cleanup and exit anyway!_
+  [gray]#// something went unhandled.#
+  [gray]#// Do any cleanup and exit anyway!#
 
-  console.error(err); _// don't do just that!_
+  console.error(err); [gray]#// don't do just that!#
 
-  _// FORCE exit the process too._
+  [gray]#// FORCE exit the process too.#
   process.exit(1);
 });
 ----
@@ -439,12 +446,12 @@ If we register multiple listeners for the same event, the invocation of those li
 
 [subs="+quotes,+macros"]
 ----
-_// प्रथम_
+[gray]##// प्रथम##
 withTime.on('data', (data) => {
   console.log(`Length: ${data.length}`);
 });
 
-_// दूसरा_
+[gray]##// दूसरा##
 withTime.on('data', (data) => {
   console.log(`Characters: ${data.toString().length}`);
 });
@@ -458,12 +465,12 @@ If you need to define a new listener, but have that listener invoked first, you 
 
 [subs="+quotes,+macros"]
 ----
-_// प्रथम_
+[gray]##// प्रथम##
 withTime.on('data', (data) => {
   console.log(`Length: ${data.length}`);
 });
 
-_// दूसरा_
+[gray]##// दूसरा##
 withTime.prependListener('data', (data) => {
   console.log(`Characters: ${data.toString().length}`);
 });
@@ -475,6 +482,4 @@ The above will cause the "Characters" line to be logged first.
 
 And finally, if you need to remove a listener, you can use the `removeListener` method.
 
-'''
-
-This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].
+IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.
