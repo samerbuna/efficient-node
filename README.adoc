@@ -1,17 +1,27 @@
 = Node Beyond The basics
 
-**The navigatable HTML website of this book is at https://jscomplete.com/learn/node-beyond-basics[jscomplete.com/node-beyond-basics]**
+**The navigable website for this book is at https://jscomplete.com/learn/node-beyond-basics[jscomplete.com/node-beyond-basics]**
 
 WARNING: This book is still a work in progress. New content is synced here as it gets ready.
 
 === Contents:
 
-1. link:blob/master/01-learning-node-runtime.adoc[Introduction^]
-2. link:blob/master/02-requiring-modules.adoc[Requiring Modules^]
-3. link:blob/master/03-node-events.adoc[Node's Event-Driven Architecture^]
-4. link:blob/master/04-node-streams.adoc[Node's Streams^]
-5. link:blob/master/05-child-processes.adoc[Node's Child Processes^]
-6. link:blob/master/07-scaling-node-apps.adoc[Scaling Node.js Applications^]
+1. link:01-learning-node-runtime.adoc[Introduction^]
+2. link:02-requiring-modules.adoc[Requiring Modules^]
+3. link:03-node-events.adoc[Node's Event-Driven Architecture^]
+4. link:04-node-streams.adoc[Node's Streams^]
+5. link:05-child-processes.adoc[Node's Child Processes^]
+6. link:06-scaling-node-apps.adoc[Scaling Node.js Applications^]
+
+=== Getting Help
+
+We use Slack chat for support. You can use the form at https://jscomplete.com/help[jscomplete.com/help^] to get an email invite.
+
+=== Contributing
+
+You can click the "Edit this file" pencil icon while reading any of the lessons under this book, and then make any edits and push the green "Commit changes" button.
+
+All contributions are welcome, even if it was just to correct a tiny typo or code formatting issue, or even to add a comma. Please know that if you contribute to this book, you're contributing to our efforts to fight racial injustice everywhere, and we will be in deep gratitude to you.
 
 '''
 
