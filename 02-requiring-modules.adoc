@@ -725,3 +725,7 @@ However, this is not the most efficient solution for this case. The simple solut
 require("./ascii-art")(); _// will show the header._
 require("./ascii-art")(); _// will also show the header._
 ----
+
+'''
+
+This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].
