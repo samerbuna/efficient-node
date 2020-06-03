@@ -373,3 +373,7 @@ If you can't do the code modifications needed to make a shared storage of sessio
 The idea is simple. When a user authenticates with a worker instance, we keep a record of that relation on the load balancer level. Then, when the same user sends a new request, we do a lookup in this record to figure out which server has their session authenticated and keep sending them to that server instead of the normal distributed behavior. This way, the code on the server side does not have to be changed, but we don't really get the benefit of load balancing for authenticated users here, so only use sticky load balancing if you have no other option.
 
 The cluster module actually does not support sticky load balancing, but a few other load balancers can be configured to do sticky load balancing by default.
+
+'''
+
+This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].

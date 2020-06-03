@@ -359,3 +359,7 @@ In the parent process, we listen to the `message` event on the forked child proc
 The code above is limited by the number of processes we can fork, but when we execute it and request the long computation endpoint over http, the main server is not blocked at all and can take further requests.
 
 Node's *cluster* module, which is the topic of the likn:/learn/node-beyond-basics/scaling-node-apps[next article^], is based on this idea of child process forking and load balancing the requests among the many forks that we can create on any system.
+
+'''
+
+This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].

@@ -474,3 +474,7 @@ withTime.execute(fs.readFile, __filename);
 The above will cause the "Characters" line to be logged first.
 
 And finally, if you need to remove a listener, you can use the `removeListener` method.
+
+'''
+
+This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].

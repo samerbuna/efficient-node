@@ -218,3 +218,7 @@ Throughout the book, I use the term Node instead of Node.js for brevity. The off
 
 [NOTE]
 Some of the content of this book was first drafted with articles I wrote on EdgeCoders.com and medium.freecodecamp.org, and some of it was inspired by my *https://jscomplete.com/c/nodejs-advanced[Advanced Node.js^]* course on Pluralsight.
+
+'''
+
+This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].
