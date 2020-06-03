@@ -1,10 +1,17 @@
 = Scaling Node.js Applications
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bookmark:
+:important-caption: :boom:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
 Scalability in Node is not an afterthought. It's something that's baked into the core of the runtime. Node is named Node to emphasize the idea that a Node application should comprise multiple small distributed *nodes* that communicate with each other.
 
 Are you running multiple nodes for your Node applications? Are you running a Node process on every CPU core of your production machines and load balancing all the requests among them? Did you know that Node has a built-in module to help with that?
 
-Node's *cluster* module not only provides an out-of-the-box solution to utilizing the full CPU power of a machine, but it also helps with increasing the availability of your Node processes and provides an option to restart the whole application with a zero downtime. This article covers all that goodness and more.
+Node's *cluster* module not only provides an out-of-the-box solution to utilizing the full CPU power of a machine, but it also helps with increasing the availability of your Node processes and provides an option to restart the whole application with a zero downtime. This lesson covers all that goodness and more.
 
 == Strategies of Scalability
 
@@ -26,7 +33,7 @@ This strategy is commonly associated with the term *Microservice*, where micro i
 
 We can also split the application into multiple instances where each instance is responsible for only a part of the application's data. This strategy is often named *horizontal partitioning*, or *sharding*, in databases. Data partitioning requires a lookup step before each operation to determine which instance of the application to use. For example, maybe we want to partition our users based on their country or language. We need to do a lookup of that information first.
 
-Successfully scaling a big application should eventually implement all three strategies. Node makes it easy to do so but I am going to focus on the cloning strategy in this article and explore the built-in tools available in Node to implement it.
+Successfully scaling a big application should eventually implement all three strategies. Node makes it easy to do so but I am going to focus on the cloning strategy in this lesson and explore the built-in tools available in Node to implement it.
 
 == The Cluster Module
 
@@ -58,7 +65,7 @@ const pid = process.pid;
 
 http
   .createServer((req, res) => {
-    for (let i = 0; i < 1e7; pass:[i++]); _// simulate CPU work_
+    for (let i = 0; i < 1e7; pass:[i++]); [gray]##// simulate CPU work##
     res.end();
   })
   .listen(8080, () => {
@@ -158,10 +165,10 @@ Let's make this communication example a little bit more practical. Let's say we 
 
 [subs="+quotes,+macros"]
 ----
-_// Mock DB Call_
+[gray]##// Mock DB Call##
 const numberOfUsersInDB = function() {
   this.count = this.count || 5;
-  this.count = this.count _ this.count;
+  this.count = this.count + this.count;
   return this.count;
 }
 ----
@@ -172,7 +179,7 @@ In the master process mode, we can use the same loop to broadcast the users coun
 
 [subs="+quotes,+macros"]
 ----
-_// Right after the fork loop within the isMaster=true block_
+[gray]##// Right after the fork loop within the isMaster=true block##
 
 const updateWorkers = () => {
   const usersCount = numberOfUsersInDB();
@@ -200,7 +207,7 @@ const pid = process.pid;
 
 http
   .createServer((req, res) => {
-    for (let i = 0; i < 1e7; pass:[i++]); _// simulate CPU work_
+    for (let i = 0; i < 1e7; pass:[i++]); [gray]##// simulate CPU work##
     res.write(pass:[`Handled by process ${pid}\n`]);
     *res.end(pass:[`Users: ${usersCount}`]);*
   })
@@ -229,10 +236,10 @@ To simulate a random crash in the server process, we can simply do a `process.ex
 
 [subs="+quotes,+macros"]
 ----
-_// In server.js_
+[gray]##// In server.js##
 
 setTimeout(() => {
-  process.exit(1) _// death by random timeout_
+  process.exit(1) [gray]##// death by random timeout##
 }, Math.random() \* 10000);
 ----
 
@@ -242,7 +249,7 @@ For example:
 
 [subs="+quotes,+macros"]
 ----
-_// Right after the fork loop within the isMaster=true block_
+[gray]##// Right after the fork loop within the isMaster=true block##
 
 *cluster*.on("*exit*", (worker, code, signal) => {
   if (code !== 0 && !worker.exitedAfterDisconnect) {
@@ -270,10 +277,10 @@ Implementing this with the cluster module is easy. Since we don't want to restar
 
 [subs="+quotes,+macros"]
 ----
-_// In Node_
+[gray]##// In Node##
 process.on('SIGUSR2', () => { ... });
 
-_// To trigger that_
+[gray]##// To trigger that##
 $ kill -SIGUSR2 PID
 ----
 
@@ -374,6 +381,4 @@ The idea is simple. When a user authenticates with a worker instance, we keep a 
 
 The cluster module actually does not support sticky load balancing, but a few other load balancers can be configured to do sticky load balancing by default.
 
-'''
-
-This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^].
+IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.

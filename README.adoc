@@ -1,4 +1,11 @@
 = Node Beyond The basics
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bookmark:
+:important-caption: :boom:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
 
 **The navigable website for this book is at https://jscomplete.com/learn/node-beyond-basics[jscomplete.com/node-beyond-basics]**
 
@@ -6,12 +13,12 @@ WARNING: This book is still a work in progress. New content is synced here as it
 
 === Contents:
 
-1. link:01-learning-node-runtime.adoc[Introduction^]
-2. link:02-requiring-modules.adoc[Requiring Modules^]
-3. link:03-node-events.adoc[Node's Event-Driven Architecture^]
-4. link:04-node-streams.adoc[Node's Streams^]
-5. link:05-child-processes.adoc[Node's Child Processes^]
-6. link:06-scaling-node-apps.adoc[Scaling Node.js Applications^]
+1. link:100-learning-node-runtime.adoc[Introduction^]
+2. link:200-requiring-modules.adoc[Requiring Modules^]
+3. link:300-node-events.adoc[Node's Event-Driven Architecture^]
+4. link:400-node-streams.adoc[Node's Streams^]
+5. link:500-child-processes.adoc[Node's Child Processes^]
+6. link:600-scaling-node-apps.adoc[Scaling Node.js Applications^]
 
 === Getting Help
 
