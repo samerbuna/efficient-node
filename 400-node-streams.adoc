@@ -22,10 +22,11 @@ However, streams are not only about working with big data. They also give us the
 
 image::/images/picturenode4.png[]
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-const grep = ... [gray]##// A stream for the grep output##
-const wc = ...   [gray]##// A stream for the wc input##
+const grep = ... // A stream for the grep output
+const wc = ...   // A stream for the wc input
 
 grep.pipe(wc)
 ----
@@ -57,6 +58,7 @@ Theory is great, but often not 100% convincing. Let's see an example demonstrati
 
 Let's create a *big* file first:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const fs = require("fs");
@@ -79,6 +81,7 @@ Running the script above generates a file that's about *~400 MB.*
 
 Here's a simple Node web server designed to exclusively serve the `big.file`:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const fs = require("fs");
@@ -114,6 +117,7 @@ The HTTP response object (`res` in the code above) is also a writable stream. Th
 
 Node's fs module can give us a readable stream for any file using the `createReadStream` method. We can pipe that to the response object:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const fs = require("fs");
@@ -159,6 +163,7 @@ All streams are instances of `EventEmitter`. They emit events that can be used t
 
 Here's the magic line that you need to remember:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 readableSrc.pipe(writableDest);
@@ -166,6 +171,7 @@ readableSrc.pipe(writableDest);
 
 In this simple line, we're piping the output of a readable stream – the source of data, as the input of a writable stream – the destination. The source has to be a readable stream and the destination has to be a writable one. Of course, they can both be duplex/transform streams as well. In fact, if we're piping into a duplex stream, we can chain pipe calls just like we do in Linux:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 readableSrc
@@ -176,19 +182,20 @@ readableSrc
 
 The pipe method returns the destination stream, which enabled us to do the chaining above. For streams `a` (readable), `b` and `c` (duplex), and `d` (writable), we can:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 a.pipe(b)
   .pipe(c)
   .pipe(d);
 
-[gray]##// Which is equivalent to:##
+// Which is equivalent to:
 a.pipe(b);
 b.pipe(c);
 c.pipe(d);
 
-[gray]##// Which, in Linux, is equivalent to:##
-[gray]##// $ a | b | c | d##
+// Which, in Linux, is equivalent to:
+// $ a | b | c | d
 ----
 
 The `pipe` method is the easiest way to consume streams. It's generally recommended to either use the pipe method or consume streams with events, but avoid mixing these two. Usually when you're using the pipe method you don't need to use events, but if you need to consume the streams in more custom ways, events would be the way to go.
@@ -199,9 +206,10 @@ Besides reading from a readable stream source and writing to a writable destinat
 
 However, streams can also be consumed with events directly. Here's the simplified event-equivalent code of what the pipe method mainly does to read and write data:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// readable.pipe(writable)##
+// readable.pipe(writable)
 
 readable.on("data", chunk => {
   writable.write(chunk);
@@ -284,6 +292,7 @@ Stream implementers are usually the ones who require the `stream` module.
 
 To implement a writable stream, we need to use the `Writable` constructor from the stream module.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { Writable } = require("stream");
@@ -291,6 +300,7 @@ const { Writable } = require("stream");
 
 We can implement a writable stream in many ways. For example, we can extend the `Writable` constructor if we want:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 class myWritableStream extends Writable {}
@@ -298,6 +308,7 @@ class myWritableStream extends Writable {}
 
 However, I prefer the simpler constructor approach. We just create an object from the `Writable` constructor and pass it a number of options. The only required option is a `write` function, which exposes the `chunk` of data to be written.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { Writable } = require("stream");
@@ -328,6 +339,7 @@ When we run the code above, anything we type into `process.stdin` will be echoed
 
 This is not a very useful stream to implement because it's actually already implemented and built-in. This is very much equivalent to `process.stdout`. We can just pipe `stdin` into `stdout` and we'll get the exact same echo feature with this single line:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 process.stdin.pipe(process.stdout);
@@ -337,6 +349,7 @@ process.stdin.pipe(process.stdout);
 
 To implement a readable stream, we require the `Readable` interface and construct an object from it:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { Readable } = require("stream");
@@ -346,6 +359,7 @@ const inStream = new Readable({});
 
 There is a simple way to implement readable streams. We can just directly `push` the data that we want the consumers to consume.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { Readable } = require("stream");
@@ -355,7 +369,7 @@ const inStream = new Readable();
 inStream.push("ABCDEFGHIJKLM");
 inStream.push("NOPQRSTUVWXYZ");
 
-inStream.push(null); [gray]##// No more data##
+inStream.push(null); // No more data
 
 inStream.pipe(process.stdout);
 ----
@@ -368,18 +382,20 @@ When we run the code above, we'll be reading all the data from `inStream` and ec
 
 We're basically pushing all the data in the stream *before* & piping it to `process.stdout`. The much better way is to push data *on demand*, when a consumer asks for it. We can do that by implementing the `read()` method in a readable stream configuration:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const inStream = new Readable({
   *read*(size) {
-    [gray]##// there is a demand on the data...##
-    [gray]##// Someone wants to read it.##
+    // there is a demand on the data...
+    // Someone wants to read it.
   }
 });
 ----
 
 When the read method is called on a readable stream, the implementation can push partial data to the queue. For example, we can push one letter at a time, starting with character code `65` (which represents `A`), and increment the code on every push:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const inStream = new Readable({
@@ -406,6 +422,7 @@ With `Duplex` streams, we can implement both readable and writable streams with 
 
 Here's an example duplex stream that combines the two writable and readable examples implemented above:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { Duplex } = require("stream");
@@ -439,6 +456,7 @@ For a transform stream, we don't have to implement the `read` or `write` methods
 
 Here's a simple transform stream which echoes back anything you type into it after transforming it to uppercase format:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { Transform } = require("stream");
@@ -461,6 +479,7 @@ By default, streams expect Buffer/String values. There is an `objectMode` flag t
 
 Here's a simple example to demonstrate that. The following combination of transform streams makes a feature to map a string of comma-separated values into a JavaScript object. So `"a,b,c,d"` becomes `{a: b, c: d}`
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { Transform } = require("stream");
@@ -503,6 +522,7 @@ const objectToString = new Transform({
 
 Then, to use these streams:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 process.stdin
@@ -524,6 +544,7 @@ Node has a few very useful built-in transform streams such as the `zlib`and `cry
 
 Here's an example that uses the `zlib.createGzip()` stream combined with the `fs` readable/writable streams to create a file-compression script:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const fs = require("fs");
@@ -539,6 +560,7 @@ You can use this script to gzip any file you pass as the argument. We're piping 
 
 The cool thing about using pipes is that we can actually combine them with events if we need to. Say, for example, I want the user to see a progress indicator while the script is working and a “Done” message when the script is done. Since the pipe method returns the destination stream, we can chain the registration of events handlers as well:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const fs = require("fs");
@@ -556,6 +578,7 @@ With the `pipe` method, we get to easily consume streams, but we can still furth
 
 What's great about the `pipe` method though is that we can use it to *compose* our program piece by piece, in a much readable way. For example, instead of listening to the `data` event above, we can simply create a transform stream to report progress and replace the `.on()` call with another `.pipe()` call:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const fs = require("fs");
@@ -582,11 +605,12 @@ This `reportProgress` stream is a simple pass-through stream, but it reports the
 
 The applications of combining streams are endless. For example, if we need to encrypt the file before or after we gzip it, all we need to do is pipe another transform stream in that exact order that we needed. We can use Node's `crypto` module for that:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const crypto = require("crypto");
 
-[gray]##// ..##
+// ..
 
 fs.createReadStream(file)
   .pipe(zlib.createGzip())
@@ -600,6 +624,7 @@ The script above compresses and then encrypts the file it receives as an argumen
 
 To actually be able to unzip anything zipped with the script above, we need to use the opposite streams for `crypto` and `zlib` in a reverse order, which is simple:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 fs.createReadStream(file)

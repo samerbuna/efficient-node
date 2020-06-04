@@ -58,6 +58,7 @@ This is one of the simplest and most used load balancing algorithms, but it's no
 Let's clone and load balance a simple HTTP server using the cluster module. Here's the simple Node's hello-world example server slightly modified to simulate some CPU work before responding:
 
 .server.js
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const http = require("http");
@@ -65,7 +66,7 @@ const pid = process.pid;
 
 http
   .createServer((req, res) => {
-    for (let i = 0; i < 1e7; pass:[i++]); [gray]##// simulate CPU work##
+    for (let i = 0; i < 1e7; pass:[i++]); // simulate CPU work
     res.end();
   })
   .listen(8080, () => {
@@ -77,6 +78,7 @@ To verify that the balancer we're going to create is going to work, I've include
 
 Before we create a cluster to clone this server into multiple workers, let's do a simple benchmark of how many requests this server can handle per second. We can use the *Apache Benchmarking* tool (`ab`) for that. After running the simple server.js code above, run this ab command:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 ab -c200 -t10 pass:[http://localhost:8080/]
@@ -91,6 +93,7 @@ Now that we have a reference benchmark, we can scale the application with the cl
 On the same level as the `server.js` file above, we can create a new file (`cluster.js`) for the master process with this content (explanation follows):
 
 .cluster.js
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const cluster = require("cluster");
@@ -137,6 +140,7 @@ Communicating between the master process and the workers is simple because under
 
 Based on the `server.js/cluster.js` example above, we can access the list of worker objects using `cluster.workers`, which is an object that holds a reference to all workers and can be used to read information about these workers. Since we have communication channels between the master process and all workers, to broadcast a message to all them we just need a simple loop over all the workers. For example:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 Object.values(cluster.workers).forEach(worker => {
@@ -148,6 +152,7 @@ We simply used `Object.values` to get an array of all workers from the `cluster.
 
 In a worker file, `server.js` in our example, to read a message received from this master process, we can register a handler for the `message` event on the global `process` object. For example:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 process.on("message", msg => {
@@ -163,9 +168,10 @@ Every worker received a message from the master process. *Note how the workers d
 
 Let's make this communication example a little bit more practical. Let's say we want our server to reply with the number of users we have created in our database. We'll create a mock function that returns the number of users we have in the database and just have it square its value every time it's called (dream growth):
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// Mock DB Call##
+// Mock DB Call
 const numberOfUsersInDB = function() {
   this.count = this.count || 5;
   this.count = this.count + this.count;
@@ -177,9 +183,10 @@ Every time `numberOfUsersInDB` is called, we'll assume that a database connectio
 
 In the master process mode, we can use the same loop to broadcast the users count value to all workers:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// Right after the fork loop within the isMaster=true block##
+// Right after the fork loop within the isMaster=true block
 
 const updateWorkers = () => {
   const usersCount = numberOfUsersInDB();
@@ -198,6 +205,7 @@ In the server code, we can use the `usersCount` value using the same `message` e
 
 For example:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const http = require("http");
@@ -207,7 +215,7 @@ const pid = process.pid;
 
 http
   .createServer((req, res) => {
-    for (let i = 0; i < 1e7; pass:[i++]); [gray]##// simulate CPU work##
+    for (let i = 0; i < 1e7; pass:[i++]); // simulate CPU work
     res.write(pass:[`Handled by process ${pid}\n`]);
     *res.end(pass:[`Users: ${usersCount}`]);*
   })
@@ -234,12 +242,13 @@ When we have multiple instances, the availability of the system can be easily in
 
 To simulate a random crash in the server process, we can simply do a `process.exit` call inside a timer that fires after a random amount of time:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// In server.js##
+// In server.js
 
 setTimeout(() => {
-  process.exit(1) [gray]##// death by random timeout##
+  process.exit(1) // death by random timeout
 }, Math.random() \* 10000);
 ----
 
@@ -247,9 +256,10 @@ When a worker process exits like this, the master process will be notified using
 
 For example:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// Right after the fork loop within the isMaster=true block##
+// Right after the fork loop within the isMaster=true block
 
 *cluster*.on("*exit*", (worker, code, signal) => {
   if (code !== 0 && !worker.exitedAfterDisconnect) {
@@ -275,12 +285,13 @@ We have multiple instances running, so instead of restarting them together we ca
 
 Implementing this with the cluster module is easy. Since we don't want to restart the master process once it's up, we need a way to send this master process a command to instruct it to start restarting its workers. This is easy on Linux systems because we can simply listen to a process signal like `SIGUSR2`, which we can trigger by using the `kill` command on the process id and passing that signal:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// In Node##
+// In Node
 process.on('SIGUSR2', () => { ... });
 
-[gray]##// To trigger that##
+// To trigger that
 $ kill -SIGUSR2 PID
 ----
 
@@ -300,6 +311,7 @@ In our example, when the master process receives the `SIGUSR2` signal, that mean
 
 To begin this task, we need to get a reference to all current workers using the `cluster.workers` object and we can simply just store the workers in an array:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const workers = Object.values(cluster.workers);
@@ -307,6 +319,7 @@ const workers = Object.values(cluster.workers);
 
 Then, we can create a `restartWorker` function that receives the index of the worker to be restarted. This way we can do the restarting in sequence by having the function call itself when it's ready for the next worker. Here's an example `restartWorker` function that we can use (explanation follows):
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const restartWorker = workerIndex => {
@@ -336,6 +349,7 @@ When this new forked worker is ready, we can restart the next one. However, reme
 
 That's all we need for a zero-downtime restart. To test it, you'll need to read the master process ID to be sent to the `SIGUSR2` signal:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 console.log(pass:[`Master PID: ${process.pid}`]);
@@ -345,6 +359,7 @@ Start the cluster, copy the master process id, and then restart the cluster usin
 
 Process monitors like PM2, which I use in production, make all the tasks we went through so far extremely easy and provide a lot more features to monitor the health of a Node application. For example, with PM2, to launch a cluster for any app, all you need to do is use the -i argument:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 pm2 start server.js -i max
@@ -352,6 +367,7 @@ pm2 start server.js -i max
 
 And to do a zero downtime restart you just issue this magic command:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 pm2 reload all

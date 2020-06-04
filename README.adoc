@@ -1,4 +1,4 @@
-= Node Beyond The basics
+= Node.js Beyond the Basics
 ifdef::env-github[]
 :tip-caption: :bulb:
 :note-caption: :bookmark:

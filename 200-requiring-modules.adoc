@@ -16,6 +16,7 @@ You can think of the `require` module as the *command* and the `module` module a
 
 Requiring a module in Node isn't that complicated of a concept.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const config = **require**('/path/to/file');
@@ -37,6 +38,7 @@ In this lesson, I'll attempt to explain with examples these different stages and
 
 Let me first create a directory to host all the examples using my terminal:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 mkdir ~/learn-node && cd ~/learn-node
@@ -49,6 +51,7 @@ All the commands in the rest of this lesson will be run from within `~/learn-nod
 
 Let me introduce you to the `module` object. You can check it out in a simple REPL session:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ node
@@ -71,6 +74,7 @@ However, since Node allows many ways to require a file (for example, with a rela
 
 When we require a `'find-me'` module without specifying a path:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 require("find-me");
@@ -78,6 +82,7 @@ require("find-me");
 
 Node will look for `find-me.js` in all the paths specified by `module.paths` – in order.
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ node
@@ -95,6 +100,7 @@ The paths list is basically a list of `node_modules` directories under every dir
 
 If Node can't find `find-me.js` in any of these paths, it will throw a “*cannot find module error.*”
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ node
@@ -114,6 +120,7 @@ Error: Cannot find module 'find-me'
 
 If you now create a local `node_modules` directory and put a `find-me.js` in there, the `require('find-me')` line will find it.
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ mkdir node_modules
@@ -129,6 +136,7 @@ _~/learn-node $_ node
 
 If another `find-me.js` file existed in any of the other lookup paths Node will not use it. For example, if we have a `node_modules` directory under the home (~) directory and we have a different `find-me.js` file in there:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 $ mkdir ~/node_modules
@@ -137,6 +145,7 @@ $ echo "console.log('*I am the root of all problems*');" > ~/node_modules/find-m
 
 When we `require('find-me')` from within the `learn-node` directory – which has its own `node_modules/find-me.js`, the `find-me.js` file that is under the home directory will not be loaded at all:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ node
@@ -148,6 +157,7 @@ _~/learn-node $_ node
 
 But if we remove the local `node_modules` directory under `~/learn-node` and try to require `find-me` one more time, the file under the home's `node_modules` directory would be used:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ rm -r node_modules/
@@ -163,6 +173,7 @@ _~/learn-node $_ node
 
 *Modules don't have to be files.* We can also create a `find-me` *folder* under `node_modules` and place an `index.js` file in there. The same `require('find-me')` line will use that folder's `index.js` file:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ mkdir -p node_modules/find-me
@@ -180,6 +191,7 @@ Note how `require` ignored the home directory's `node_modules` path again since 
 
 An `index.js` file will be used by default when we require a folder, but we can control what file name to start with under the folder using the `main` property in `package.json`. For example, to make the `require('find-me')` line resolve to a different file under the find-me folder, all we need to do is add a `package.json` file in there and specify which file should be used to resolve this folder:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ echo "console.log('*I rule*');" > node_modules/find-me/*start.js*
@@ -197,6 +209,7 @@ _~/learn-node $_ node
 
 If you want to only **resolve** the module and not execute it, you can use the `require.resolve` function. This function behaves exactly the same as the main `require` function, but it does not load the file. It will still throw an error if the file does not exist and it will return the full path to the file when found.
 
+[source]
 [subs="+quotes,+macros"]
 ----
 > *require.resolve*('find-me');
@@ -224,6 +237,7 @@ Besides resolving modules from within the `node_modules` directories, we can als
 
 If, for example, the `find-me.js` file was under a `lib` folder instead of the `node_modules` folder, we can require it with:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 require("./lib/find-me");
@@ -233,6 +247,7 @@ require("./lib/find-me");
 
 Create a `lib/util.js` file and add a `console.log` line there to identify it. Also, `console.log` the `module` object itself:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ mkdir lib
@@ -241,6 +256,7 @@ _~/learn-node $_ echo "console.log('In util', module);" > lib/util.js
 
 Do the same for an `index.js` file, which is what we'll be executing with the node command. Make this `index.js` file require `lib/util.js`:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ echo "console.log('In index', module); require ('./lib/util');" > index.js
@@ -248,6 +264,7 @@ _~/learn-node $_ echo "console.log('In index', module); require ('./lib/util');"
 
 Now, execute the `index.js` file with the node command:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ node index.js
@@ -287,17 +304,19 @@ To understand it better, let's first understand a few other concepts on the modu
 
 In any module, `exports` is a special object. If you've noticed above, every time we've printed a module object, it had an exports property which has been an empty object so far. We can add any attribute to this special `exports` object. For example, let's export an `id` attribute for `index.js` and `lib/util.js`:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// Add the following line at the top of lib/util.js##
+// Add the following line at the top of lib/util.js
 exports.id = "lib/util";
 
-[gray]##// Add the following line at the top of index.js##
+// Add the following line at the top of index.js
 exports.id = "index";
 ----
 
 When we now execute `index.js`, we'll see these attributes as managed on each file's `module` object:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ node index.js
@@ -321,14 +340,16 @@ loaded: false,
 
 I've removed some attributes in the above output to keep it brief but note how the `exports` object now has the attributes we defined in each module. You can put as many attributes as you want on that exports object, and you can actually change the whole object to be something else. For example, to change the exports object to be a function instead of an object, we do the following:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// Add the following line in index.js before the console.log##
+// Add the following line in index.js before the console.log
 module.exports = function() {};
 ----
 
 When you run `index.js` now, you'll see how the `exports` object is a function:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ node index.js
@@ -343,6 +364,7 @@ Note how we did not do `exports = function() {}` to make the `exports` object in
 
 The `module.exports` object in every module is what the `require` function returns when we require that module. For example, change the `require('./lib/util')` line in `index.js` into:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const UTIL = require("./lib/util");
@@ -352,6 +374,7 @@ console.log("UTIL:", UTIL);
 
 The above will capture the properties exported in `lib/util` into the `UTIL` constant. When we run `index.js` now, the very last line will output:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 UTIL: {
@@ -363,9 +386,10 @@ Let's also talk about the `loaded` attribute on every module. So far, every time
 
 The `module` module uses the `loaded` attribute to track which modules have been loaded (true value) and which modules are still being loaded (false value). For example, we can see the `index.js` module fully loaded if we print its `module` object on the next cycle of the event loop using a `setImmediate` call:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// In index.js##
+// In index.js
 
 setImmediate(() => {
   console.log("The index.js module object is now loaded!", module);
@@ -374,6 +398,7 @@ setImmediate(() => {
 
 The output of that would be:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 The index.js module object is now loaded! Module {
@@ -404,11 +429,12 @@ The `exports` object becomes complete when Node finishes loading the module (and
 
 This also means that we cannot change the exports object asynchronously. For example, we cannot do the following in any module:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 fs.readFile("/etc/passwd", (err, data) => {
   if (err) throw err;
-  *exports.data = data;* [gray]##// Will not work.##
+  *exports.data = data;* // Will not work.
 });
 ----
 
@@ -419,6 +445,7 @@ Let's now try to answer the important question about circular dependency in Node
 To find out, let's create two files `module1.js` and `module2.js` under `lib/` and have them require each other:
 
 .lib/module1.js
+[source, js]
 [subs="+quotes,+macros"]
 ----
 exports.a = 1;
@@ -430,6 +457,7 @@ exports.c = 3;
 ----
 
 .lib/module2.js
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const Module1 = require("./module1");
@@ -438,6 +466,7 @@ console.log("Module1 is partially loaded here", Module1);
 
 When we execute `module1.js`, we see the following:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ node lib/module1.js
@@ -456,6 +485,7 @@ If a file extension was not specified, the first thing Node will try to resolve 
 
 Requiring JSON files is useful if, for example, everything you need to manage in that file is some static configuration values, or some values that you periodically read from an external source. For example, if we had the following `config.json` file:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 {
@@ -466,6 +496,7 @@ Requiring JSON files is useful if, for example, everything you need to manage in
 
 We can require it directly like this:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { host, port } = require("./config");
@@ -475,6 +506,7 @@ console.log(pass:[`Server will run at https://${host}:${port}`]);
 
 Running the above code will have this output:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 Server will run at pass:[http://localhost:8080]
@@ -488,6 +520,7 @@ You can use the `node-gyp` package to compile and build the `.cc` file into a `.
 
 Once you have the `addon.node` file (or whatever name you specify in `binding.gyp`) then you can natively require it just like any other module:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const addon = require("*./addon*");
@@ -507,13 +540,14 @@ Node's wrapping of modules is often misunderstood. To understand it, let me remi
 
 We can use the `exports` object to export properties, but we cannot replace the `exports` object directly because it's just a reference to `module.exports`.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-exports.id = 42; [gray]##// This is ok.##
+exports.id = 42; // This is ok.
 
-exports = { id: 42 }; [gray]##// This will not work.##
+exports = { id: 42 }; // This will not work.
 
-module.exports = { id: 42 }; [gray]##// This is ok.##
+module.exports = { id: 42 }; // This is ok.
 ----
 
 How exactly does this `exports` object, which appears to be global for every module, get defined as a reference on the `module` object?
@@ -522,6 +556,7 @@ Let me ask one more question before explaining Node's wrapping process.
 
 In a browser, when we declare a variable in a script like this:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 var answer = 42;
@@ -533,6 +568,7 @@ This is not the case in Node. When we define a variable in one module, the other
 
 The answer is simple. Before compiling a module, Node wraps the module code in a function, which we can inspect using the `wrapper` property of the `module` module.
 
+[source]
 [subs="+quotes,+macros"]
 ----
 ~ $ node
@@ -551,6 +587,7 @@ All of these arguments get their values when Node executes the wrapper function.
 
 You can see this wrapping in action if you run a script with a problem on its first line:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ echo "euaohseu" > bad.js
@@ -567,6 +604,7 @@ Note how the first line of the script as reported above was the wrapper function
 
 Moreover, since every module gets wrapped in a function, we can actually access that function's arguments with the `arguments` keyword:
 
+[source]
 [subs="+quotes,+macros"]
 ----
 _~/learn-node $_ echo "*console.log(arguments);*" > index.js
@@ -606,14 +644,15 @@ The wrapping function's return value is `module.exports`. Inside the wrapped fun
 
 What happens is roughly equivalent to:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 function (require, module, pass:[__filename, __dirname]) {
-[gray]##// let exports = module.exports;##
+// let exports = module.exports;
 
-  [gray]##// Your Code...##
+  // Your Code...
 
-[gray]##// return module.exports;##
+// return module.exports;
 }
 ----
 
@@ -625,6 +664,7 @@ There is nothing special about require. It's an object that acts mainly as a fun
 
 For example, maybe for testing purposes we want every `require` call to be mocked by default and just return a fake object instead of the required module exports object. This simple reassignment of require will do the trick:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 require = function() {
@@ -640,6 +680,7 @@ There is also `require.main` which can be helpful to determine if the script is 
 
 Say, for example, that we have this simple `printInFrame` function in `print-in-frame.js`:
 
+[source, js]
 .print-in-frame.js
 ----
 const printInFrame = (size, header) => {
@@ -655,9 +696,10 @@ We want to use this file in two ways:
 
 . *From the command-line directly like this:*
 +
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##~/learn-node $## node print-in-frame 8 Hello
+~/learn-node $ node print-in-frame 8 Hello
 ----
 +
 Passing 8 and Hello as command line arguments to print “Hello” in a frame of 8 stars.
@@ -666,6 +708,7 @@ Passing 8 and Hello as command line arguments to print “Hello” in a frame of
 +
 Assuming the required module will export the `printInFrame` function and we can just call it:
 +
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const print = require("./print-in-frame");
@@ -679,15 +722,17 @@ Those are two different usages. We need a way to determine if the file is being 
 
 This is where we can use this simple if statement:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 if (require.main === module) {
-  [gray]##// The file is being executed directly (not with require)##
+  // The file is being executed directly (not with require)
 }
 ----
 
 We can use this condition to satisfy the usage requirements above by invoking the `printInFrame` function differently:
 
+[source, js]
 .print-in-frame.js
 ----
 const printInFrame = (size, header) => {
@@ -715,10 +760,11 @@ image::/images/picturenode3.png[]
 
 We want to display this header every time we **require** the file. If we require the file twice, we want the header to show up twice.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-require("./ascii-art"); [gray]##will show the header.##
-require("./ascii-art"); [gray]##will not show the header.##
+require("./ascii-art"); // will show the header.
+require("./ascii-art"); // will not show the header.
 ----
 
 The second require will not show the header because of modules' caching. Node caches the first call and does not load the file on the second call.
@@ -727,10 +773,11 @@ We can see this cache by printing `require.cache` after the first require. The c
 
 However, this is not the most efficient solution for this case. The simple solution is towrap the log line in `ascii-art.js` with a function and export that function. This way, when we require the `ascii-art.js` file, we get a function that we can execute to invoke the log line every time:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-require("./ascii-art")(); [gray]##will show the header.##
-require("./ascii-art")(); [gray]##will also show the header.##
+require("./ascii-art")(); // will show the header.
+require("./ascii-art")(); // will also show the header.
 ----
 
 IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.
