@@ -25,15 +25,15 @@ It's important to understand that callbacks do not indicate an asynchronous call
 
 For example, here's a host function `fileSize` that accepts a callback function `cb` and can invoke that callback function both synchronously and asynchronously based on a condition:
 
-[subs="+quotes,+macros"]
+[source, js]
 ----
 function fileSize (fileName, cb) {
   if (typeof fileName !== 'string') {
-    return cb(new TypeError('argument should be string')); [gray]##// Syn [gray]##
+    return cb(new TypeError('argument should be string')); // Syn
   }
   fs.stat(fileName, (err, stats) => {
-    if (err) { return cb(err); } [gray]##// Asyn [gray]##
-    cb(null, stats.size); [gray]##// Asyn [gray]##
+    if (err) { return cb(err); } // Asyn
+    cb(null, stats.size); // Asyn
   });
 }
 ----
@@ -42,6 +42,7 @@ Note that this is a bad practice that leads to unexpected errors. Design host fu
 
 Let's explore a simple example of a typical asynchronous Node function that's written with a callback style:
 
+[source, js]
 ----
 const readFileAsArray = function(file, cb) {
   fs.readFile(file, function(err, data) {
@@ -58,6 +59,7 @@ const readFileAsArray = function(file, cb) {
 
 Here's an example use for it. Assuming that we have the file `numbers.txt` in the same directory with content like this:
 
+[source]
 ----
 10
 11
@@ -69,6 +71,7 @@ Here's an example use for it. Assuming that we have the file `numbers.txt` in th
 
 If we have a task to count the odd numbers in that file, we can use `readFileAsArray` to simplify the code:
 
+[source, js]
 ----
 readFileAsArray('./numbers.txt', (err, lines) => {
   if (err) throw err;
@@ -88,6 +91,7 @@ In modern JavaScript, we have promise objects. Promises can be an alternative to
 
 If the `readFileAsArray` function supports promises, we can use it as follows:
 
+[source, js]
 ----
 readFileAsArray('./numbers.txt')
   .then(lines => {
@@ -240,9 +244,10 @@ This is important, because if we pass an asynchronous `taskFunc` to `execute`, t
 
 We can simulate the case with a `setImmediate` call:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// ...##
+// ...
 
 withLog.execute(() => {
   setImmediate(() => {
@@ -352,10 +357,11 @@ We can use as many arguments as we need after the named event, and all these arg
 
 For example, to work with the data event, the listener function that we register will get access to the data argument that was passed to the emitted event and that data object is exactly what the `asyncFunc` exposes.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 withTime.on('data', (data) => {
-  [gray]##// do something with data##
+  // do something with data
 });
 ----
 
@@ -363,6 +369,7 @@ The `error` event is usually a special one. In our callback-based example, if we
 
 To demonstrate that, make another call to the execute method with a bad argument:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 class WithTime extends EventEmitter {
@@ -370,7 +377,7 @@ class WithTime extends EventEmitter {
     console.time('execute');
     asyncFunc(...args, (err, data) => {
       if (err) {
-        return this.emit('error', err); [gray]##// Not Handled##
+        return this.emit('error', err); // Not Handled
       }
 
       console.timeEnd('execute');
@@ -397,6 +404,7 @@ The second execute call will be affected by this crash and will potentially not 
 
 If we register a listener for the special `error` event, the behavior of the node process will change. For example:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 withTime.on('error', (err) => {
@@ -423,6 +431,7 @@ The other way to handle exceptions from emitted errors is to register a listener
 
 The standard advice about uncaughtException is to avoid using it, but if you must do (say to report what happened or do cleanups), you should just let the process exit anyway:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 process.on('uncaughtException', (err) => {
@@ -444,14 +453,15 @@ The `EventEmitter` module exposes a `once` method. This method signals to invoke
 
 If we register multiple listeners for the same event, the invocation of those listeners will be in order. The first listener that we register is the first listener that gets invoked.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// प्रथम##
+// प्रथम
 withTime.on('data', (data) => {
   console.log(`Length: ${data.length}`);
 });
 
-[gray]##// दूसरा##
+// दूसरा
 withTime.on('data', (data) => {
   console.log(`Characters: ${data.toString().length}`);
 });
@@ -463,14 +473,15 @@ The above code will cause the "Length" line to be logged before the "Characters"
 
 If you need to define a new listener, but have that listener invoked first, you can use the `prependListener` method:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
-[gray]##// प्रथम##
+// प्रथम
 withTime.on('data', (data) => {
   console.log(`Length: ${data.length}`);
 });
 
-[gray]##// दूसरा##
+// दूसरा
 withTime.prependListener('data', (data) => {
   console.log(`Characters: ${data.toString().length}`);
 });

@@ -133,6 +133,7 @@ You want to remember that because you want to know where your program is running
 
 If you have `module1` that defines a top-level variable `g`:
 
+[source, js]
 [subs="+quotes,+macros"]
 .module1.js
 ----

@@ -31,6 +31,7 @@ We're going to see the differences between these four functions and when to use 
 
 The `spawn` function launches a command in a new process and we can use it to pass that command any arguments. For example, here's code to spawn a new process that will execute the `pwd` command.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { spawn } = require("child_process");
@@ -42,6 +43,7 @@ We simply destructure the `spawn` function out of the `child_process` module and
 
 The result of executing the `spawn` function (the `child` object above) is a `ChildProcess` instance, which implements the `EventEmitter` API. This means we can register handlers for events on this child object directly. For example, we can do something when the child process exits by registering a handler for the `exit` event:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 child.on("*exit*", function(code, signal) {
@@ -83,6 +85,7 @@ The two handlers above will log both cases to the main process `stdout` and `std
 
 We can pass arguments to the command that's executed by the `spawn` function using the second argument of the `spawn` function, which is an array of all the arguments to be passed to the command. For example, to execute the `find` command on the current directory with a `-type f` argument (to list files only), we can do:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const child = spawn("find", [".", "-type", "f"]);
@@ -92,6 +95,7 @@ If an error occurs during the execution of the command (for example, if we give 
 
 A child process `stdin` is a writable stream. We can use it to send a command some input. Just like any writable stream, the easiest way to consume it is using the `pipe` function. We simply pipe a readable stream into a writable stream. Since the main process `stdin` is a readable stream, we can pipe that into a child process `stdin` stream. For example:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { spawn } = require("child_process");
@@ -109,6 +113,7 @@ In the example above, the child process invokes the `wc` command, which counts l
 
 We can also pipe the standard input/output of multiple processes on each other, just like we can do with Linux commands. For example, we can pipe the `stdout` of the `find` command to the `stdin` of the `wc` command to count all the files in the current directory:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { spawn } = require("child_process");
@@ -131,6 +136,7 @@ By default, the `spawn` function does not create a *shell* to execute the comman
 
 Here's the previous `find | wc` example implemented with an `exec` function.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { exec } = require("child_process");
@@ -158,6 +164,7 @@ The `spawn` function is a much better choice when the size of the data expected 
 
 We can make the spawned child process inherit the standard IO objects of its parents if we want to, but more importantly, we can make the `spawn` function use the shell syntax as well. Here's the same `find | wc` command implemented with the `spawn` function:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const child = spawn("find . -type f | wc -l", {
@@ -172,6 +179,7 @@ Because of the `shell: true` option above, we were able to use the shell syntax 
 
 There are a few other good options we can use in the last argument to the `child_process` functions besides `shell` and `stdio`. For example, we can use the `cwd` option to change the working directory of the script. For example, here's the same count-all-files example done with a `spawn` function using a shell and with a working directory set to my Downloads folder. The `cwd` option here will make the script count all files I have in `~/Downloads:`
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const child = spawn("find . -type f | wc -l", {
@@ -183,6 +191,7 @@ const child = spawn("find . -type f | wc -l", {
 
 Another option we can use is env to specify the environment variables that will be visible to the new child process. The default for this option is `process.env` which gives any command access to the current process environment. If we want to override that behavior, we can simply pass an empty object as the `env` option or new values there to be considered as the only environment variables:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const child = spawn("echo $ANSWER", {
@@ -198,15 +207,17 @@ One last important child process option to explain here is the `detached` option
 
 Assuming we have a `file timer.js` that keeps the event loop busy:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 setTimeout(() => {
-  [gray]##// keep the event loop busy##
+  // keep the event loop busy
 }, 20000);
 ----
 
 We can execute it in the background using the `detached`option:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { spawn } = require("child_process");
@@ -233,6 +244,7 @@ If you need to execute a file without using a shell, the `execFile` function is 
 
 The functions `spawn`, `exec`, and `execFile` from the `child_process` module also have synchronous blocking versions that will wait until the child process exits.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const { spawnSync, execSync, execFileSync } = require("child_process");
@@ -283,6 +295,7 @@ Let's do a more practical example about the `fork` function.
 
 Let's say we have an http server that handles two endpoints. One of these endpoints (`/compute below`) is computationally expensive and will take a few seconds to complete. We can use a long for loop to simulate that:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const http = require("http");
@@ -317,6 +330,7 @@ We first move the whole `longComputation` function into its own file and make it
 
 In a new `compute.js` file:
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const longComputation = () => {
@@ -335,6 +349,7 @@ const longComputation = () => {
 
 Now, instead of doing the long operation in the main process event loop, we can `fork` the `compute.js` file and use the messages interface to communicate messages between the server and the forked process.
 
+[source, js]
 [subs="+quotes,+macros"]
 ----
 const http = require("http");
