@@ -95,6 +95,8 @@ When the nested invocations of functions reaches an end, V8 will *pop* one funct
 *Why is this important to understand for Node?* Because you only get ONE Call Stack per Node process. If you keep that Call Stack busy, your whole Node process is busy. Keep that in mind.
 ****
 
+image::/images/picturenode12.svg[]
+
 === What is the Event Loop? Is it part of V8?
 
 The event loop is provided by the *libuv* library. It is not part of V8.
