@@ -19,7 +19,7 @@ Let me give you a taste of the kind of questions you will be able to answer afte
 
 * What is the relationship between Node and V8? Can Node work without V8?
 
-*  come when you declare a global variable in any Node file it's not really global to all modules?
+* How come when you declare a global variable in any Node file it's not really global to all modules?
 
 * When exporting the API of a Node module, why can we sometimes use `exports` and other times we have to use `module.exports?`
 
