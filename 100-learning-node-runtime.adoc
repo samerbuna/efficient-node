@@ -202,7 +202,7 @@ You need to understand most of what you see in that list.
 
 Some of those will feel familiar, like *Timers* for example, because they also exist in the browser and Node is simulating that environment. However, there is much more to learn, like `fs`, `path`, `readline`, `http`, `net`, `stream`, `cluster`, etc. The auto-complete list above has them all.
 
-For example, you can read/write files with `fs`, you can run a streaming-ready web server using “`http`”, and you can run a TCP server and program sockets with “`net`”. Node today is so much more powerful than it was just a year ago, and it's getting better by the commit. Before you look for a package to do some task, make sure that you can't do that task with the built-in Node packages first.
+For example, you can read/write files with `fs`, you can run a streaming-ready web server using “`http`”, and you can run a TCP server and program sockets with “`net`”. Node today is so much more powerful than it was just a year ago, and it's getting better by the commit. Before you look for a package to do some task, make sure that you can do that task with the built-in Node packages first.
 
 The `events` module is especially important because most of Node architecture is event-driven.
 
