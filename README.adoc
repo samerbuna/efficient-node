@@ -11,15 +11,6 @@ endif::[]
 
 WARNING: This book is still a work in progress. New content is synced here as it gets ready.
 
-=== Contents:
-
-1. link:100-learning-node-runtime.adoc[Introduction^]
-2. link:200-requiring-modules.adoc[Requiring Modules^]
-3. link:300-node-events.adoc[Node's Event-Driven Architecture^]
-4. link:400-node-streams.adoc[Node's Streams^]
-5. link:500-child-processes.adoc[Node's Child Processes^]
-6. link:600-scaling-node-apps.adoc[Scaling Node.js Applications^]
-
 === Getting Help
 
 We use Slack chat for support. You can use the form at https://jscomplete.com/help[jscomplete.com/help^] to get an email invite.
