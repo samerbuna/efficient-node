@@ -636,5 +636,3 @@ fs.createReadStream(file)
 ----
 
 Assuming the file used is the compressed version, the code above will create a read stream from that, pipe it into the crypto `createDecipher()` stream (using the same secret), pipe the output of that into the zlib `createGunzip()` stream, and then write things out back to a file without the extension part.
-
-IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.

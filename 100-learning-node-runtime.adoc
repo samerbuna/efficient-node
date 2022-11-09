@@ -225,8 +225,3 @@ This book is not for the beginner. I assume that the reader is comfortable with 
 All the examples I will be using in this book are Linux-based. On Windows, you need to switch the commands I use with their Windows alternatives.
 
 Throughout the book, I use the term Node instead of Node.js for brevity. The official name of the runtime is Node.js but referring to it as just Node is a very common thing.
-
-[NOTE]
-Some of the content of this book was first drafted with articles on https://edgecoders.com[EdgeCoders.com^] and https://www.freecodecamp.org/news/[FreeCodeCamp.org^], and some of it was inspired by the *https://jscomplete.com/c/nodejs-advanced[Advanced Node.js^]* course on Pluralsight.
-
-IMPORTANT: **This book is part of the jsComplete library which is FREE. We ask you to please donate what you can to https://jscomplete.com/fri[a cause that is fighting racial injustice^]**.

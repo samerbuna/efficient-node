@@ -1,4 +1,4 @@
-= Node.js Beyond the Basics
+= Efficient Node.js: A Beyond the Basics Guide
 ifdef::env-github[]
 :tip-caption: :bulb:
 :note-caption: :bookmark:
@@ -7,27 +7,4 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-**The navigable website for this book is at https://jscomplete.com/learn/node-beyond-basics[jscomplete.com/node-beyond-basics]**
-
-WARNING: This book is still a work in progress. New content is synced here as it gets ready.
-
-=== Contents:
-
-1. link:100-learning-node-runtime.adoc[Introduction^]
-2. link:200-requiring-modules.adoc[Requiring Modules^]
-3. link:300-node-events.adoc[Node's Event-Driven Architecture^]
-4. link:400-node-streams.adoc[Node's Streams^]
-5. link:500-child-processes.adoc[Node's Child Processes^]
-6. link:600-scaling-node-apps.adoc[Scaling Node.js Applications^]
-
-=== Getting Help
-
-We use Slack chat for support. You can use the form at https://jscomplete.com/help[jscomplete.com/help^] to get an email invite.
-
-=== Contributing
-
-You can click the "Edit this file" pencil icon while reading any of the lessons under this book, and then make any edits and push the green "Commit changes" button.
-
-All contributions are welcome, even if it was just to correct a tiny typo or code formatting issue, or even to add a comma. Please know that if you contribute to this book, you're contributing to our efforts to fight racial injustice everywhere, and we will be in deep gratitude to you.
-
-The chapters are written in AsciiDoc, which is just like Markdown but with standards and a lot more features. See https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[this syntax reference guide^] for a quick start.
+WARNING: This book is still a work in progress.
