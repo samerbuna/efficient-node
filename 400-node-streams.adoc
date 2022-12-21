@@ -177,7 +177,7 @@ In this simple line, we're piping the output of a readable stream – the source
 readableSrc
   .pipe(transformStream1)
   .pipe(transformStream2)
-  .pipe(finalWrtitableDest);
+  .pipe(finalWritableDest);
 ----
 
 The pipe method returns the destination stream, which enabled us to do the chaining above. For streams `a` (readable), `b` and `c` (duplex), and `d` (writable), we can:
