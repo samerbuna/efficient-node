@@ -1,0 +1,541 @@
+[[chapter_02]]
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :bookmark:
+:important-caption: :boom:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== Chapter 2: Node Fundamentals
+
+In this chapter, we will first get comfortable with Node's CLI and REPL mode, then will learn the fundamentals of how modules work in Node. We'll see examples of functions that use Node's concurrency model, then learn how Node's event loop works with events and how event functions get executed when their events are triggered.
+
+=== The `node` Command
+
+In Chapter 1, we used the `node` command briefly to explore Node's REPL mode and then to execute Node scripts. The `node` command has many options and its behavior can be customized. It also supports arguments and environment variables to further customize what it does and pass data from the operating system environment to Node's process environment. Let's take a look:
+
+In the terminal, type
+
+----
+$ node -h | less
+----
+
+This will output the "help" documentation for the command (on page at a time because we piped the output on the `less` command). I find it useful to always get myself familiar with the help pages for the commands I use often.
+
+.Output of `node -h | less`
+----
+Usage: node [options] [ script.js ] [arguments]
+       node inspect [options] [ script.js | host:port ] [arguments]
+
+Options:
+  -                           script read from stdin (default if no
+                              file name is provided, interactive mode
+                              if a tty)
+  --                          indicate the end of node options
+  --abort-on-uncaught-exception
+                              aborting instead of exiting causes a
+                              core file to be generated for analysis
+  --build-snapshot            Generate a snapshot blob when the
+                              process exits. Currently only supported
+                              in the node_mksnapshot binary.
+  -c, --check                 syntax check script without executing
+  --completion-bash           print source-able bash completion
+                              script
+  -C, --conditions=...        additional user conditions for
+                              conditional exports and imports
+  --cpu-prof                  Start the V8 CPU profiler on start up,
+:
+----
+
+The first 2 lines specify how to use the `node` command. Anything in square brackets is optional, which means, according to the first line, that we can use the `node` command on its own without any options, scripts, or arguments. That's what we did to start a REPL session. To execute a script, we used the `node script.js` syntax ("script" can be any name there).
+
+What's new here is that there are options and arguments that we can use with the command. Let's talk about these.
+
+[TIP]
+====
+The second usage line is to start a terminal debugging session for Node. While that's sometimes useful, in Chapter 6, I'll show you a much better way to debug code in Node.
+====
+
+In the help page, right after the usage lines, there is a list of all the options that you can use with the command. Most of these options are advanced, but knowing of their existence is a helpful reference. You should scan through this list just to get a quick idea of all the types of things that you can do, but let me highlight a few of the options that I think you should be aware of.
+
+The `-c` option (or `--check`) lets you check the syntax of a Node script without running that script. An example use of that option is to automate a syntax check before sharing code with others.
+
+The `-e` and `-p` options (or `--eval` and `--print`) can both be used for executing code directly from the command line. I like the `-p` one more because it executes and prints (just like in the REPL mode). To use these options, you pass a string of Node code in quotes. For example:
+
+----
+$ node -p "Math.random()"
+----
+
+This is handy, as you can use it to create your own powerful commands (and alias them if you want). For example, say you need a command to generate a unique random string (to be used as a password maybe). You can leverage Node's `crypto` module in a short `-p` one liner:
+
+----
+$ node -p "crypto.randomBytes(16).toString('hex')"
+----
+
+Pretty cool, isn't it!
+
+[NOTE]
+====
+Note how the `crypto` module is available to the `-p` option without needing to require it (just like in the REPL mode).
+====
+
+How about a command to count the words in any file?! This one will help us understand how to use arguments with the `node` command:
+
+----
+$ node -p "fs.readFileSync(process.argv[1]).toString().split(' ').length" ~/.bashrc
+----
+
+Don't panic. There's a lot going on with this one. It leverages the powers of both Node and JavaScript. Go ahead and try it first. You can replace `~/.bashrc` with a path to any file on your system.
+
+Let's decipher this one a bit:
+
+The `readFileSync` takes a file path as an argument and synchronously returns a binary representation of that file's data. That's why I chained a `.toString` call to it, to get the file's actual content (in UTF-8). Furthermore, instead of hardcoding the file path in the command, I put the path as the first argument to the `node` command itself and used `process.argv[1]` to read the value of that argument (see explanation of that next). This allows the word-counting one-liner to be generic. We can alias it without the path argument and then use the alias with a path argument.
+
+Then once I have the content of the file, I use JavaScript's `split` method, which is available on any string, to split the content using spaces, giving me an array of words. Then I just counted those with a `.length` call to estimate the number of words.
+
+.The `process.argv` array
+****
+We know from the usage syntax that the `node` command can take arguments. These arguments can be any list of strings and when you specify them, you make them available to the Node process.
+
+The word-counting one-liner used `process.argv[1]`. The `process` object is a global object available in Node, and it simply represents Node's interface to the actual Operating System process that executes the `node` command. The `argv` property is an array that holds all the arguments you pass to the `node` command (regardless of how you're using the command). To understand that, run the following command:
+
+----
+node -p "process.argv" hello world
+----
+
+This will output the entire array of arguments, Node uses the first element in that array for the path of the `node` command itself, then the arguments are listed in order. That's why in the word-counting one liner, I used the second element of `argv`.
+
+Note that if you're executing a script, the path for that script will be the second element of `process.argv`, and the arguments (if any) will be listed starting with the third element.
+****
+
+The `-r` option (or `--require`) allows you to require a module before executing the main script. This is useful if you need to load a specific module before running your code or if you want to set up certain configurations or variables.
+
+For example, let's say you have a Node project that requires the use of a module called `dotenv`, which loads environment variables from a file. Normally, you would need to include something like `require('dotenv').config()` at the beginning of your main file to use the `dotenv` module. However, with the `-r` option, you can load the module automatically without having to add it to each file:
+
+----
+$ node -r dotenv/config index.js
+----
+
+The `--watch` option allows you to watch a file (and its dependencies) for changes. It automatically restarts Node when a change is detected. This is very useful in development environments. You can test it with any of the files we wrote so far. For example, to run the Express.js example in watch mode, you can run:
+
+----
+$ node --watch index.mjs
+----
+
+This will start the server in watch mode. Make a change to the `server.mjs` file (change the "Hello Express" string, for example) and notice how the `node` command will automatically restart.
+
+There are a lot more options, but most of them are for advanced use. It's good to be aware of them so that in the future, you can look up if there's one particular option that might make a task you're doing simpler.
+
+Since Node is a wrapper around V8, and V8 itself has CLI options, the `node`` command accepts many V8 options as well. The list of all the V8 options you can use with the `node` command can be printed with:
+
+----
+$ node --v8-options | less
+----
+
+This is an even bigger list! You can set JavaScript harmony flags (to turn on/off experimental features), you can set tracing flags, customize the engine memory management, and many other customizations. As with the `node` command options, it's good to know that all these options exist.
+
+Toward the end of the `node -h` output, you can see a list of environment variables, like `NODE_DEBUG`, `NODE_PATH`, and many more. Environment variables are another way to customize the behavior of Node or make custom data available to the Node process (similar to command arguments)
+
+Every time you run the `node` command, you start an operating system process. In Linux, the command `ps` can be used to list all running process, if you run it while a Node process is running (like the Express.js example), one of the listed process will be Node (and you can see its process ID, and stop it from the terminal if you need to). Here's a command to output process details and filter the output for processes that have the word "node" in them:
+
+----
+$ ps -ef | grep "node"
+----
+
+Within Node, the `global` object has a `process` property that exposes a special object that represents a bridge between the Node environment and the operating system environment. We can use it to exchange information between Node and the operating system. In fact, when you `console.log` a message, under the hood, the code is basically using the `process` object to write a string to the operating system stdout (standard output) data stream.
+
+Environment variables are one way to pass information from the operating system environment (used to execute the `node` command), to the Node environment, and we can read their values using the `env` property of the `process` object.
+
+Here's an example to demonstrate that:
+
+----
+$ NAME="Reader" node -p "'Hello ' + process.env.NAME"
+----
+
+This will output "Hello Reader". It sets an environment variable `NAME` then reads its value with `process.env.NAME`. You can even set multiple environment variables if you need, either directly from the command line like this example, or using the Linux `export` command prior to executing the `node` command:
+
+----
+$ export GREETING="Hello"; export NAME="Reader"; \
+  node -p "process.env.GREETING + ' ' + process.env.NAME"
+----
+
+[TIP]
+====
+In Linux, you can use a semicolon to execute multiple commands on the same line, and `\` to split a command into multiple lines.
+====
+
+You can use environment variables to make your code customizable on different machines or environments. For example, the Express.js example in Chapter 1 hard-coded the port to be 3000. However, on a different machine, 3000 might not be available, or you might need to run the server on a different port in a production environment. To accomplish that, you can modify the code to use `process.env.PORT ?? 3000` instead of just `3000` (in the `listen` method) and then run the `node` command with a custom port when you need to:
+
+----
+$ PORT=4000 node index.mjs
+----
+
+Note that if you don't specify a port, the default port would be 3000 because I used the `??` (nullish) operator to specify a value when `process.env.port` does not have one. This is a common practice.
+
+[NOTE]
+====
+You can't use Node's 'process.env' object to change an operating system environment variable. It's basically a copy of all the environment variables available to the process.
+====
+
+The list of environment variables shown toward the end of `node -h` output are Node's built-in environment variables. These are variables that Node will look for and use if they have values. Here are a few examples:
+
+* `NODE_DEBUG` can be used to tell Node to output more debugging information when it uses certain libraries. We give it a comma-separated list of modules to debug, for example, with `NODE_DEBUG=fs,http`, Node will start outputting debugging messages when the code uses either the `fs` or `http` modules. Many packages support this environment variable.
+
+* `NODE_OPTIONS` is an alternative way to specify the options Node supports instead of passing them to the command line each time.
+
+* `NODE_PATH` can be used to simplify import statements by using absolute paths instead of relative ones. We'll see an example of that later in the chapter.
+
+=== Node's REPL Mode
+
+In Node's REPL mode, as we learned in Chapter 1, you can type any JavaScript code, and Node will execute it and automatically print its result. This is a convenient way to quickly test short JavaScript expressions (and it works for bigger code too). However, there are a few other helpful things you can do in REPL mode beyond the quick tests.
+
+In REPL mode, you usually type an expression (for example: 0.1 + 0.2), and hit Enter to see its result. You can also type statements that are not expressions (for example: `let v = 21;`) and when you hit Enter, the variable `v`` will be defined, and the REPL mode will print `undefined` since that statement does not evaluate to anything. If you need to clear the screen, you can do so with `CTRL+L`.
+
+If you try to define a function, you can write the first line and hit Enter, and the REPL mode will detect that your line is not complete, and it will go into a multiline mode so that you can complete it. Try and define a small function to test that.
+
+The REPL multiline mode is limited but there's an integrated basic editor available within REPL as well. While in REPL mode, type `.editor` to start the basic editor mode, then you can type as many lines of code as you need, you can define multiple functions, or paste code from the clipboard, then, when you are done, hit `CTRL+D` to the have Node execute all the code you typed in the editor.
+
+The `.editor` command is one of many REPL commands which you can see by typing the `.help` command:
+
+----
+> .help
+.break    Sometimes you get stuck, this gets you out
+.clear    Alias for .break
+.editor   Enter editor mode
+.exit     Exit the REPL
+.help     Print this help message
+.load     Load JS from a file into the REPL session
+.save     Save all evaluated commands in this REPL session to a file
+
+Press Ctrl+C to abort current expression, Ctrl+D to exit the REPL
+----
+
+The `.break` command (or its `.clear` alias) lets you get out of some weird cases in REPL sessions. For example, when you paste some code in Node's multiline mode and you are not sure how many curly braces you need to get to an executable state. You can completely discard your pasted code by using a `.break` command. This saves you from killing the whole session to get yourself out of situations like these.
+
+The `.exit` command exits the REPL or you can simply press `Ctrl+D`.
+
+The `.save` command enables you to save all the code you typed in one REPL session into a file. The `.load` command enables you to load JavaScript code from a file and make it all available within the REPL session. Both of these commands take a file name as an argument.
+
+One of my favorite things about Node's REPL mode is how I can inspect basically everything that's available natively in Node without needing to require them. All the built-in modules (like `fs`, `http`, etc) are defined globally and you can use the TAB key to inspect their APIs.
+
+Just like in a terminal or editor, hitting the TAB key once in a REPL session will attempt to auto-complete anything you partially type. Try tying `cr` and hit TAB to see it get auto-completed to `crypto`. Hitting the TAB key twice can be used to see a list of all the possible things you can type from whatever partially-typed text you have. For example, type `a` and hit TAB twice to see all the available global objects that begin with `a`.
+
+This is great if you need to type less and avoid typing mistakes, but it gets better. You can use the TAB key to inspect the methods and properties available on any object. For example, type `Array.` and hit TAB twice to see all the methods and properties that you can use with the JavaScript `Array` class. This works with Node modules as well. Try it with `fs.` or `http.`.
+
+It even works with objects that you create. For example, create an empty array using `let myArr = [];`, then type `myArr.` and hit TAB twice to see all the methods available on an array instance.
+
+Best of all, TAB discoverability works on the global level, if you hit TAB twice on an empty line, you get a list of everything that is globally available. This is a big list, but it's a useful one, it has all the globals in the JavaScript language itself (like `Array`, Number`, and `Math`), and it has all the globals from Node (like `process` and 'setTimeout'), and it also lists all the core modules that are available natively in Node (like `fs` and `http`).
+
+.Hitting TAB twice on an empty line
+----
+AbortController                   AbortSignal                       AggregateError
+Array                             ArrayBuffer                       Atomics
+BigInt                            BigInt64Array                     BigUint64Array
+Blob                              Boolean                           BroadcastChannel
+Buffer                            ByteLengthQueuingStrategy         CompressionStream
+
+...
+----
+
+[TIP]
+====
+In the list of all global things, you'll notice an underscore character `_`. This is a handy little shortcut in REPL that stores the value of the last evaluated expression. For example, after executing a `Math.random()` line, you can type `_` to access that same random value. You can even use it in any place where you use a JavaScript expression. Try `let random = _;`.
+====
+
+=== How Modules Work
+
+A module is simply a reusable block of code. Something you can include and use in any application, as many times as you need. In Node, a module can be a single file or a group of files with a main one. There's always a main file in a Node module, and that's the file that we "require" (or "import"). Modules have public APIs. When we require a module, we usually get back an object that represents the module's API.
+
+[TIP]
+====
+For the rest of this section, I'll mostly use the terminology and concepts for CommonJS modules. ES modules are similar but I'll point out some differences too.
+====
+
+.JavaScript `arguments` keyword
+****
+The next section uses the `arguments` keyword. If you're not familiar with it, here's a refresher:
+
+Within a function in JavaScript, you can use the `arguments` keyword to access the value of all the arguments you pass to the function when you call it. For example:
+
+----
+function sumArgs() {
+  let sum = 0;
+  for(i = 0; i < arguments.length; i++) {
+    sum += arguments[i];
+  }
+  return sum;
+}
+
+console.log(
+  sumArgs(1, 5, 9, 11)
+);
+----
+
+Executing this file will output `26`. The value for `arguments` within `sumArgs` is an array-like object that holds the 4 passed in arguments. That's why we were able to loop over it. This works no matter how many arguments you pass when you call the function.
+****
+
+To understand one important aspect about Node modules, let's create a new module, name it `main.js` and put the following line in it:
+
+----
+console.log(arguments);
+----
+
+What do you think executing this file will output?
+
+If you don't know that all Node modules are wrapped in special functions, you'd say `undefined`. But the output of that line will reveal 5 argument values!
+
+[TIP]
+====
+You need to run `main.js` as a CommonJS module. If you have the `type` property in `package.json` set to `module`, you need to change it to `commonjs` or remove it (the default is `commonjs`).
+====
+
+Node wraps every module implicitly with a function. When you execute a module, Node calls that function, and - as the output reveals - passes 5 arguments to that function as well.
+
+You can actually see the wrapping function detail if you print the value of `require("modul").wrapper` (You can do that in a REPL session).
+
+----
+(function(exports, require, module, __filename, __dirname) {
+  // Module code actually lives in here
+});
+----
+
+When you use the `exports`/`require`/`module`/`__filename`/`__dirname` keywords in a module, you're not using a "global" variable, you're just using the implicit wrapper function's arguments.
+
+[NOTE]
+====
+Similar to CommonJS module wrapping, ES modules are executed in an implicit function scope, but you can't access the `arguments` keyword there, and the 5 arguments are not defined in ES module scopes.
+====
+
+The `__filname` value has the name of the file (just the name, not its location). The `__dirname` value is the path to the directory where the file is hosted.
+
+The `exports`, `require`, and `module` arguments are Node's way to manage a module's API. To understand them, let's create another module in the same directory as `main.js`, let's name this one `config.js`. Usually, you'd put any configuration logic in a separate module like that.
+
+Since `config.js` is yet another module that will be wrapped by Node, it'll have the 5 arguments as well. Let's `console.log` the `exports` argument in `config.js` and execute the file with `node config.js`:
+
+.In config.js
+----
+console.log(exports)
+----
+
+As you can see, the value for `exports` is simply an empty object, and we can change that object and add properties to it, just like we can change any JavaScript variable.
+
+There are 2 ways to execute a module in the Node. So far we used the first and main way, which is to specify the file path for the `node` command. The other way to execute a module is through the `require` argument (which is a function), one module can require another module using that function, for example, the `main.js` module, can require the `config.js` module:
+
+.In main.js
+----
+require("./config.js");
+----
+
+We invoke the `require` function with the path to the module we're interested in. The path can be a relative one when it starts with a `.`, or an absolute one (for example: `/Users/samer/efficient-node/main.js`).
+
+When we execute `main.js` now using the `node` command, we'll see the `console.log` line from `config.js`.
+
+Now we can say that the `main` module "depends" on the `config` module, or that the `config` module is a dependency for the `main` module. This is where the term "dependency management" comes from. We are managing the dependencies of a module here and bringing one module's API to use in another module.
+
+Let's define the API for the `config` module. Let's define a static property and a function property:
+
+----
+exports.PORT = process.env.PORT ?? 8080;
+exports.SERVER_URL = (host = process.env.HOST ?? "localhost") =>
+  `http://${host}:${exports.PORT}`;
+----
+
+The `exports` argument in CommonJS modules is an alias to `module.exports` which is initialized as an empty object. The official API for the module is the `module.exports` value. As long as that value is an object, we can use the `exports` alias to define the API. In some cases, you might need the API to be a function or a class, or anything else that's not a simple aliased object. In these cases, you'll need `module.exports` to define the API (we'll see an example of that soon).
+
+When we use the `require` function in `main.js` to get the API for `config.js`, we're basically invoking the wrapping function for `config` and getting back the value of `module.exports`. It's a bit more complicated than that, but that is a good simplification to remember.
+
+Let's capture that value and print it:
+
+.In `main.js`
+----
+const config = require("./config.js");
+
+console.log(config);
+----
+
+When you execute `main.js` now, you'll see the 2 properties we defined in `config.js` (`PORT` and `SERVER_URL`).
+
+Note how I used `process.env` variables to make the configurations customizable on different environments. I also made `SERVER_URL` a function that receives a `host` argument, which is customizable through the environment as well. Making a configuration value a function allows it to be customizable at run time.
+
+To understand another concept about how Node modules work, let's repeat the `require` line in `main.js` multiple times:
+
+.In Index.js
+----
+require("./config.js");
+require("./config.js");
+require("./config.js");
+----
+
+Given these 3 `require` lines, when we execute `main.js`, how many times will the `console.log` in `config.js` be outputted?
+
+The answer is not 3 times. It'll only be outputted once.
+
+Modules in Node are cached after the first call. A module is executed the first time you require it, then when you require it again, Node loads it up from a cache.
+
+If you look at front-end applications, like React for example, all component files require the React module, and that's okay, because only the first require will do the work, the rest will use the cache.
+
+But what if I do want the `console.log` message to show up multiple times every time we require `config.js`?
+
+You can actually clear the modules cache, but generally, that's not a good practice. However, you can make the top export of `config.js` a function instead of an object, put all the code there inside the function, and call the function every time you need the code to be executed. The cache, in that case, will cache the definition of the function. The Non-object APIs sidebar has an example of that.
+
+.Non-objects APIs
+****
+In some cases, you might need the API to be not an object. For example, let's say that we want all the configuration properties to be the result of executing a function rather than a direct object. This might be helpful for testing as we can mock the configuration function differently for different tests.
+
+To make the API a function, you need to use `module.exports` (`exports` is only an alias to the initial empty API object). Here's an example:
+
+.In config.js
+----
+module.exports = () => {
+  return {
+    PORT: process.env.PORT ?? 8080;
+    SERVER_URL: (host = process.env.PORT ?? "localhost") =>
+      `http://${host}:${exports.PORT}`;
+  };
+};
+----
+
+With that, to use the configuration value in `main.js`, we'll need to invoke what we get from the `require` function:
+
+.In main.js
+----
+const config = require("config.js");
+
+console.log(
+  config() // Note how we are now invoking this.
+);
+----
+
+This method is often helpful when you need to use the "dependency injection" design pattern, which is when some modules are injected into other modules to create more flexibility and make modules more reusable.
+****
+
+=== Node Modules Lookup
+
+When you require a module in Node, Node uses the following procedure to determine how and where to look for the required module:
+
+If the module does not start with a `.` (denoting a relative path) or a `/` (denoting an absolute path), Node will first check if the module is a core one (like `fs` or `http`). If it is, it'll load it directly.
+
+If the module is not a core one, Node will look for it under `node_modules` folders starting from the directory where the requiring module is, and going up in the folders hierarchy. For example, if the requiring module is in `/User/samer/efficient-node/src`, Node will first look under `src` for a `node_modules` folder, if it does not find one, it'll look next under `efficient-node`, and so on all the way to the root path.
+
+You can use this lookup nature to localize modules dependencies by having multiple `node_modules` folders in your project, but that generally increases the complexity of the project.
+
+You can also use this lookup nature to have multiple projects share a `node_modules` folder by placing that folder in a parent directory common to all projects, or even have a global `node_module` folder for all projects on your machine. While this might be useful in some cases, having a single `node_modules` folder per project is the standard and recommended practice.
+
+If the required module starts with a `.` or `/`, Node will look for it in the relative or absolute directory specified by the path.
+
+If you set the `NODE_PATH` environment variable before executing a script. Node will first look for required modules in the paths specified by `NODE_PATH` (which can be a single path, or multiple paths separated by a comma). This can be useful to use short absolute paths instead of confusing relative ones. For example, with NODE_PATH set to `src`, you can require a module under `src` using `require("module")` even when the requiring module is multiple levels deep under `src`, instead of doing something like `require("../../../module")`.
+
+[TIP]
+====
+Besides JavaScript files, you can also require JSON files in Node. When you require a JSON file, you get back a JavaScript object representing the data in the JSON file.
+====
+
+=== Timer Functions
+
+You can delay the execution of a code block, or make it repeat regularly using timer functions in Node like `setTimeout` or `setInterval`. These functions behave very similarly to how they do in browser environments.
+
+A timer function receives a function as an argument. Here's an example:
+
+----
+const printGreeting = () => console.log("Hello");
+
+setTimeout(printGreeting, 4_000);
+----
+
+This code uses the `setTimeout` timer function to delay the printing of "Hello" by 4 seconds (the second argument to `setTimeout` is the delay period in milliseconds).
+
+The `printGreeting` function (which is passed as the first argument to `setTimeout`) is the function whose execution will be delayed. This is usually referred to in Node as a callback function.
+
+If we run this script with the `node` command, Node will pause for 4 seconds and then it'll print the greeting and exit after that.
+
+[TIP]
+====
+If you need to delay the execution of a function that receives arguments, you can pass its arguments starting from the third argument to `setTimeout`.
+====
+
+To repeat the execution of a block of code, you can use the `setInterval` timer function. If we replace `setTimeout` with `setInterval` in the last example, Node will print the "Hello" message *every* 4 seconds, forever.
+
+All timer functions can be canceled once they are defined. When you call a timer function, you get back a unique timer ID. You can use that timer ID to cancel the scheduled timer. We can use `clearTimeout(timerId)` to stop timers started by `setTimeout`, and `clearInterval(timerId)` to stop timers started by `setInterval`.
+
+For example, in this code:
+
+----
+const timerId = setTimeout(
+  () => console.log("Hello"),
+  0,
+);
+
+clearTimeout(timerId);
+----
+
+Even though we started a timer to print a message after 0 milliseconds, that message will *not* be printed at all because we canceled the timers right after it was defined.
+
+[TIP]
+====
+Node supports another function that sets a timer with a 0 milliseconds delay, it's named `setImmediate` and it does not receive a delay argument.
+====
+
+0-milliseconds delayed code is a way to "schedule" code to be immediately invoked when all the synchronous code defined after it is done executing. This is an example of why Node is "non-blocking". You can basically define code to be executed in a way that does not block the code after it. Here's an example to understand that:
+
+----
+setTimeout(
+  () => {
+    for(let i=0; i <= 1_000_000_000; i++) {
+      // ...
+    }
+  },
+  0,
+);
+
+console.log("Hello");
+----
+
+In this example, although we defined a loop that ticks 1 billion times, that code will not block the printing of the "Hello" message. The printing will happen first, then the big loop will be executed.
+
+I'm using a big loop here as a simplification of something that'll take a long time to execute, but in practice, you should never use a big loop like that synchronously in Node, because Node is single-thread, any loop like that will actually block the code after it. For example:
+
+----
+setTimeout(
+  () => console.log("Hello!"),
+  0,
+);
+
+for(let i=0; i <= 1_000_000_000; i++) {
+  // ...
+};
+----
+
+Here, even though the printing of "Hello" is scheduled to be executed immediately, it will not. Node will have to wait on the for loop to finish first, and then, a few seconds later (when I tested this on my machine), it'll execute the delayed function.
+
+This is a general observation about timer functions, their delays are not guaranteed to be exact, but rather a minimum amount. Delaying a function by 10 milliseconds, means that the execution of the function will happen after a minimum of 10 milliseconds, but possibly longer depending on the code that comes after it!
+
+Why exactly does a for loop block the code that was scheduled *before* it? It's time to dive into the details of Node's concurrency model.
+
+=== Concurrency in Node
+
+We learned that Node uses a single-threaded event loop for its non-blocking nature. To understand how that is achieved, we need to learn about a stack and a queue! The stack is known as "The Call Stack", and the queue is known as "The Event Queue".
+
+The call stack is part of V8 (not Node), and it's how V8 manages function calls. A stack is a last-in/first-out data structure. Every time we call a function in our code, a reference to that function is placed on the call stack. When you nest function calls (when functions call other functions), the function references are stacked in the call stack. Then V8 will pop one function at a time (from the top of the stack) to complete the initial call.
+
+Any JavaScript code you write in Node has to be placed in the call stack for V8 to execute it. The call stack is single-threaded, which means when there are functions in the call stack, everything else (including event-driven callbacks) will have to wait until the call stack is available again.
+
+This is exactly why the for loop in the previous example blocked the execution of a function that was scheduled to be immediately executed. We simply made the call stack busy with that loop and you should never do that. Any code that needs to run for a long time should be done with either asynchronous tools, or in its own worker thread (more on that later).
+
+When an asynchronous function like `setTimeout` is placed on the call stack and it's time for it to be popped, Node will take control of it, freeing the call stack to pop the next stacked function if any. Asynchronous functions usually have a callback function that needs to be invoked once the asynchronous function is done.
+
+Callback functions can be generalized under the "event" terminology. We define an event, and a function to be executed after that event. For the timer case, the event was "time has passed", but other events can include user input, changes in system state, or messages from other parts of the program.
+
+This is why there is an "Event Queue" in this structure, Node queues the event functions that are ready to be executed in a queue. When the timer is ready, Node will queue its callback function into the event queue. Multiple event functions can be queued to later be processed in order (a queue is a first-in/first-out structure).
+
+This is where the event loop comes into action. The event loop is a simple infinite loop, continuously ticking to monitor both the call stack and the event queue. When the call stack is free, and there are queued functions in the event queue, the event loop takes the top function in the queue, and places it on the call stack for V8 to execute it in our program. The event loop keeps doing that until there are no functions left in the event queue, in which case, the Node process will exist.
+
+=== Summary
+
+Node CLI has many powerful options that we can control. We can also pass arguments to it, set environment variables before running it, and both of these options allow us to pass data from the operating system environment to a running Node process. Node's process object is the bridge.
+
+Node's REPL mode is a good way to explore everything you can use in Node, and take a quick look at the API of anything, including core modules, installed modules, and even objects you instantiate.
+
+CommonJS Modules in Node are implicitly wrapped in a function and are passed 5 implicit arguments. We use the `require` function (which is one of the 5 arguments), to make modules depend on each other and get access to their APIs. Node manages a cache for all required modules. To discover where a required module is, Node follows a predefined set of rules depending on the path of the module. A path can be a relative one, an absolute one, or just a name. For the latter case, Node looks for the module in `node_modules` folders.
+
+Node's event loop handles asynchronous tasks using the call stack and event queue. The call stack is a data structure managed by V8 that tracks function calls. Any JavaScript code in Node must be placed in the call stack for V8 to execute it. The event queue is used to handle asynchronous tasks such as timers or I/O operations. When an asynchronous function is ready, its callback function is registered to the event queue. The event loop monitors the call stack and event queue, and when the call stack is free, it pops the first function off the event queue and adds it to the call stack for execution.

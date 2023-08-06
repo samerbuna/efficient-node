@@ -7,4 +7,22 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-WARNING: This book is still a work in progress.
+WARNING: This book is still a work in progress. New content is synced here as it gets ready.
+
+== Contents
+
+1. link:01-intro.adoc[Getting Started with Node^]
+2. link:02-fundamentals.adoc[Node Fundamentals^]
+3. link:03-package-management.adoc[Node's Package Management^]
+
+== Getting Help
+
+We use Slack chat for support. You can use the form at https://jscomplete.com/help[jscomplete.com/help^] to get an email invite.
+
+== Contributing
+
+You can click the "Edit this file" pencil icon while reading any of the lessons under this book, and then make any edits and push the green "Commit changes" button.
+
+All contributions are welcome, even if it was just to correct a tiny typo or code formatting issue, or even to add a comma.
+
+The chapters are written in AsciiDoc, which is just like Markdown but with standards and a lot more features. See https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[this syntax reference guide^] for a quick start.
