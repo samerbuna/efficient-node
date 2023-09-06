@@ -48,11 +48,11 @@ V8 is Google's open source JavaScript engine. It's written in {cpp} and used in 
 
 ==== Node Architecture
 
-The event-driven model in Node (which is also known as the non-blocking I/O model) is based on a *single-threaded event loop*. There's a lot to unpack about that statement but the gist is that Node can handle multiple tasks at the same time by registering an "event listener" for each task. When a task is completed, its event listener is triggered Node utilizes threads and native asynchronous capabilities of the underlying operating system to accomplish that.
+The event-driven model in Node (which is also known as a non-blocking I/O model) is based on a *single-threaded event loop*. There's a lot to unpack about that statement but the gist is that Node can handle multiple tasks at the same time by registering an "event listener" for each task. When a task is completed, its event listener is triggered and, Node utilizes threads and native asynchronous capabilities of the underlying operating system to accomplish that.
 
 The Node event loop is responsible for handling all the asynchronous I/O operations. For example, when a web client sends a request to a Node web server, Node processes the request internally without blocking the main single thread, and when it's done with the request, it picks up the request listener (which is is a special JavaScript function that's part of the web server code), and adds it to an *event queue*. The event loop is a forever ticking loop that waits for V8 single thread to be available, picks an event listener from that queue, and sends it V8 for processing.
 
-The exact same flow happens when you instruct Node to read a file from the file system, start a timer, encrypt data, and so on. Everything has a listener function (which is also know as a callback function, because Node basically calls it back when it's ready for it). Every listener function is queued in one queue. Sometimes the queue will have multiple pending events which are all ready for processing. That's why there's a forever ticking loop, it'll pick events one by one, and in queue order (first-in, first-out).
+The exact same flow happens when you instruct Node to read a file from the file system, start a timer, encrypt data, and so on. Everything has a listener function (which is also known as a callback function, because Node basically calls it back when it's ready for it). Every listener function is queued in one queue. Sometimes the queue will have multiple pending events which are all ready for processing. That's why there's a forever ticking loop, it'll pick events one by one, and in queue order (first-in, first-out).
 
 In Chapter 2, we'll go over some code examples of how exactly this flow works with more details around the interactions between Node and V8.
 
@@ -72,7 +72,7 @@ Node also ships with a powerful debugger and has some other handy, generic utili
 
 Node ships with a powerful package manager named npm. We did not have a package manager in the JavaScript world before Node. npm was nothing short of revolutionary. It changed the way we work and share JavaScript.
 
-You can make a feature-rich Node application just by using code that's freely available on npm. The npm registry has hundreds of thousands of packages that you can just install and use in your Node servers. npm is a reliable package manager which comes with a simple CLI (the `npm` command). The `npm` command offers simple ways to install and maintain third-party packages, share your own code, and reuse it too.
+You can make a feature-rich Node application just by using code that's freely available on npm. The npm registry has hundreds of thousands of packages that you can just install and use in your Node servers. npm is a reliable package manager which comes with a simple CLI (the `npm` CLI). The CLI offers simple ways to install and maintain third-party packages, share your own code, and reuse it too.
 
 [TIP]
 ====
@@ -83,11 +83,11 @@ Node also comes with a reliable module dependency manager (different from npm). 
 
 Node's original module dependency management has been available since Node was released and it opened the door to so much flexibility in how we code JavaScript! It is widely used, even for JavaScript that gets executed in the browser, because npm has many tools to bridge the gap between modules written in Node and what browsers can work with today.
 
-npm and Node's module systems together make a big difference when you work with any JavaScript system, not just the JavaScript that you execute on backend servers or web browsers. For example, if you have a fancy fridge monitor that happens to run on JavaScript, you can use Node and npm for the tools to package, organize, and manage dependencies, and then bundle your code, and ship it to your fridge!
+Npm and Node's module systems together make a big difference when you work with any JavaScript system, not just the JavaScript that you execute on backend servers or web browsers. For example, if you have a fancy fridge monitor that happens to run on JavaScript, you can use Node and npm for the tools to package, organize, and manage dependencies, and then bundle your code, and ship it to your fridge!
 
 The packages that you can run on Node come in all shapes and forms, some are small and dedicated to specific programming tasks, some offer tools to assist in the life cycles of an application, others help developers every day to build and maintain big and complicated applications. Here are a few example of some of my favorite ones:
 
-- ESLint: A tool that you can include in any Node applications, and use it to find problems with your JavaScript code, and in some cases, automatically fix them. You can use ESLint to enforce best practices and consistent code style, but ESLint can help point out potential runtime bugs too. You don't ship ESLint in your production environments, it's just a tool that can help you increase the quality of your code as you write it.
+- ESLint: A tool that you can include in any Node applications, and use it to find problems with your JavaScript code, and in some cases, automatically fix them. You can use ESLint to enforce best practices and consistent code style and, ESLint can help point out potential runtime bugs too. You don't ship ESLint in your production environments, it's just a tool that can help you increase the quality of your code as you write it.
 
 - Webpack: A tool that assists with asset bundling. The *Webpack* Node package makes it very easy to bundle your multi-file frontend frameworks application into a single file for production and compile JavaScript extensions (like JSX for React) during that process. This is an example of a Node tool that you can use on its own. You do not need a Node web server to work with Webpack.
 
@@ -105,9 +105,9 @@ With Node, you get to have a single language across the full-stack. You use Java
 
 * One language means less syntax to keep in your head, less APIs and tools to work with, and less mistakes over all.
 
-* One language means better integrations between your frontend code and your backend code. You can actually share code between these two sides. For example, You can build a frontend application with a JavaScript framework like React, then use Node to render the same components of that frontend application on the server and generate initial HTML views for the frontend application. This is known as server-side rendering (SSR) and it's now something that many Node packages offer out of the box.
+* One language means better integrations between your frontend code and your backend code. You can actually share code between these two sides. For example, You can build a frontend application with a JavaScript framework like React, then use Node to render the same components of that frontend application on the server and generate initial HTML views for the frontend application. This is known as Server-Side Rendering (SSR) and it's now something that many Node packages offer out of the box.
 
-* One language means teams can share responsibilities among different projects. Projects don't need a dedicated team for the frontend and a different team for the backend. You would also eliminate some dependencies between teams. A full-stack project can be assigned to a single team, *The JavaScript People*; they can develop APIs, they can develop web and network servers, they can develop interactive websites, and they can even develop mobile and desktop applications. Hiring JavaScript developers who can contribute to both frontend and backend applications is attractive to employers.
+* One language also means teams can share responsibilities among different projects. Projects don't need a dedicated team for the frontend and a different team for the backend. You would also eliminate some dependencies between teams. A full-stack project can be assigned to a single team, *The JavaScript People*; they can develop APIs, they can develop web and network servers, they can develop interactive websites, and they can even develop mobile and desktop applications. Hiring JavaScript developers who can contribute to both frontend and backend applications is attractive to employers.
 
 While Node has also played a significant role in the growing popularity of JavaScript, the language itself is simple, flexible, easy to learn, and available on every computer (client with browsers, and thanks to Node, servers as well). JavaScript is widely adopted in the programming community, particularly among beginner programmers, coding bootcamps, and startups.
 
