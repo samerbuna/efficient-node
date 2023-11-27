@@ -184,7 +184,7 @@ I think SemVer is great. Responsible npm developers should respect it when they 
 
 When the packages your project depends on get updates, you can issue the `npm update <package-name>` command to update a single package, or the `npm update` command to update all the packages in the dependency tree.
 
-Let's simulate a case where an update is going to happen by installing an older version of `lodash`. To da that, we just specify the exact version we are interested in by adding it after an `@` character:
+Let's simulate a case where an update is going to happen by installing an older version of `lodash`. To do that, we just specify the exact version we are interested in by adding it after an `@` character:
 
 ----
 $ npm install lodash@3.9.1
