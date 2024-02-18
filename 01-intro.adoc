@@ -30,7 +30,7 @@ Ryan Dahl started the Node runtime in 2009 after he was inspired by the performa
 
 [TIP]
 ====
-I decided to give Node a spin and learn more about it after watching the presentation Ryan Dahl gave to introduce it. I think you'll benefit by starting there as well. [Here](https://youtu.be/M-sc73Y-zQA?feature=shared). Node has changed significantly since then, so don't focus on the examples, but rather the concepts and explanations.
+I decided to give Node a spin and learn more about it after watching the presentation Ryan Dahl gave to introduce it. I think you'll benefit by starting there as well. https://youtu.be/M-sc73Y-zQA?feature=shared[Here]. Node has changed significantly since then, so don't focus on the examples, but rather the concepts and explanations.
 ====
 
 In its core, Node enables developers to use the JavaScript language on any machine without needing a web browser. Node is usually defined as “*JavaScript on backend servers*”. Before Node, that was not a common or easy thing. JavaScript was mainly a frontend thing.
